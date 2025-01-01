@@ -11,3 +11,7 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+.touch-action-none {
+  touch-action: none;
+}

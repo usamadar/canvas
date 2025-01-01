@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card } from "./ui/card";
+import { Button } from "./ui/button";
 
 interface CanvasProps {
   color: string;
@@ -58,6 +59,15 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
         displayWidth: rect.width,
         displayHeight: rect.height
       });
+    };
+
+    const clearCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
 
     useEffect(() => {
@@ -123,10 +133,14 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
 
     return (
       <Card className="p-4 bg-white shadow-lg">
+        <div className="mb-4">
+          <Button onClick={clearCanvas} variant="outline">
+            Clear Canvas
+          </Button>
+        </div>
         <canvas
           ref={canvasRef}
-          className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none"
-          style={{ touchAction: 'none' }}
+          className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none touch-action-none"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
