@@ -158,7 +158,12 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       <Card className="p-4 bg-white shadow-lg">
         <canvas
           ref={canvasRef}
-          className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none touch-action-none"
+          className="w-full aspect-[4/3] border border-gray-200 rounded-lg touch-none touch-action-none"
+          style={{
+            cursor: tool === 'brush' ? 
+              `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='black'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto` :
+              `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white' stroke='black' stroke-width='2'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`
+          }}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
