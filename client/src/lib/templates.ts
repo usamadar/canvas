@@ -1,32 +1,32 @@
 export const templates = [
   {
     name: "Princess Castle",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-castle.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-castle.png"
+    url: "https://cdn.jsdelivr.net/gh/public-apis/public-apis@master/assets/coloring-castle.png",
+    thumbnail: "https://cdn.jsdelivr.net/gh/public-apis/public-apis@master/assets/coloring-castle-thumb.png"
   },
   {
     name: "Butterfly",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-butterfly.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-butterfly.png"
+    url: "https://cdn.pixabay.com/photo/2016/03/31/15/33/butterfly-1293871_960_720.png",
+    thumbnail: "https://cdn.pixabay.com/photo/2016/03/31/15/33/butterfly-1293871_150.png"
   },
   {
     name: "Unicorn",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-unicorn.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-unicorn.png"
+    url: "https://cdn.pixabay.com/photo/2017/01/31/17/10/unicorn-2025316_960_720.png",
+    thumbnail: "https://cdn.pixabay.com/photo/2017/01/31/17/10/unicorn-2025316_150.png"
   },
   {
     name: "Flowers",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-flowers.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-flowers.png"
+    url: "https://cdn.pixabay.com/photo/2016/03/31/15/33/flower-1293873_960_720.png",
+    thumbnail: "https://cdn.pixabay.com/photo/2016/03/31/15/33/flower-1293873_150.png"
   },
   {
     name: "Rainbow",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-rainbow.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-rainbow.png"
+    url: "https://cdn.pixabay.com/photo/2016/03/31/15/33/rainbow-1293879_960_720.png",
+    thumbnail: "https://cdn.pixabay.com/photo/2016/03/31/15/33/rainbow-1293879_150.png"
   },
   {
     name: "Heart",
-    url: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-heart.png",
-    thumbnail: "https://raw.githubusercontent.com/public-apis/public-apis/master/assets/coloring-page-heart.png"
+    url: "https://cdn.pixabay.com/photo/2016/03/31/15/33/heart-1293875_960_720.png",
+    thumbnail: "https://cdn.pixabay.com/photo/2016/03/31/15/33/heart-1293875_150.png"
   }
 ];

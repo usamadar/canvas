@@ -2,11 +2,14 @@ import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/templates";
 import { loadImageToCanvas } from "@/lib/drawingUtils";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function TemplateGallery() {
   const { toast } = useToast();
+  const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
-  const loadTemplate = async (imageUrl: string, templateName: string) => {
+  const loadTemplate = async (imageUrl: string, templateName: string, index: number) => {
     const canvas = document.querySelector("canvas");
     if (!canvas) {
       toast({
@@ -17,7 +20,18 @@ export default function TemplateGallery() {
       return;
     }
 
+    setLoadingTemplate(index);
+
     try {
+      // Pre-load image to check if it exists and is accessible
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
+
       await loadImageToCanvas(canvas, imageUrl, {
         scale: 0.8,
         preserveAspectRatio: true,
@@ -30,11 +44,14 @@ export default function TemplateGallery() {
         duration: 2000,
       });
     } catch (error) {
+      console.error("Failed to load template:", error);
       toast({
         title: "Error",
-        description: "Failed to load template. Please try again.",
+        description: "Failed to load template. Please try a different one.",
         variant: "destructive",
       });
+    } finally {
+      setLoadingTemplate(null);
     }
   };
 
@@ -45,16 +62,23 @@ export default function TemplateGallery() {
         {templates.map((template, index) => (
           <button
             key={index}
-            className="p-2 rounded-lg hover:bg-pink-100 transition-colors active:bg-pink-200"
-            onClick={() => loadTemplate(template.url, template.name)}
+            className="p-2 rounded-lg hover:bg-pink-100 transition-colors active:bg-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => loadTemplate(template.url, template.name, index)}
+            disabled={loadingTemplate !== null}
           >
             <div className="relative aspect-square bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
-              <img
-                src={template.thumbnail}
-                alt={template.name}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              {loadingTemplate === index ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+                  <Loader2 className="w-6 h-6 animate-spin text-pink-600" />
+                </div>
+              ) : (
+                <img
+                  src={template.thumbnail}
+                  alt={template.name}
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              )}
             </div>
             <span className="text-xs text-gray-600 mt-1 block">
               {template.name}
