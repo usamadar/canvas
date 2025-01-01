@@ -67,7 +67,73 @@ export const drawFlower = (ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.stroke();
 };
 
-export type TemplateType = "star" | "heart" | "flower";
+export const drawHeartEyes = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+  // Draw face circle
+  ctx.beginPath();
+  ctx.arc(x, y, size/2, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Draw smile
+  ctx.beginPath();
+  ctx.arc(x, y + size/8, size/3, 0, Math.PI);
+  ctx.stroke();
+
+  // Draw left heart eye
+  const eyeSize = size/4;
+  drawHeart(ctx, x - size/4, y - size/6, eyeSize);
+
+  // Draw right heart eye
+  drawHeart(ctx, x + size/4, y - size/6, eyeSize);
+};
+
+export const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+  const radius = size/4;
+  
+  // Main circle
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Top circles
+  ctx.beginPath();
+  ctx.arc(x - radius, y - radius/2, radius * 0.7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(x + radius, y - radius/2, radius * 0.7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Bottom circles
+  ctx.beginPath();
+  ctx.arc(x - radius, y + radius/2, radius * 0.7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(x + radius, y + radius/2, radius * 0.7, 0, Math.PI * 2);
+  ctx.stroke();
+};
+
+export const drawArrow = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+  const arrowLength = size;
+  const headLength = size/3;
+  const headWidth = size/3;
+  
+  // Draw the shaft
+  ctx.beginPath();
+  ctx.moveTo(x - arrowLength/2, y);
+  ctx.lineTo(x + arrowLength/2 - headLength, y);
+  ctx.stroke();
+
+  // Draw the arrowhead
+  ctx.beginPath();
+  ctx.moveTo(x + arrowLength/2, y);
+  ctx.lineTo(x + arrowLength/2 - headLength, y - headWidth/2);
+  ctx.lineTo(x + arrowLength/2 - headLength, y + headWidth/2);
+  ctx.closePath();
+  ctx.stroke();
+};
+
+export type TemplateType = "star" | "heart" | "flower" | "heartEyes" | "cloud" | "arrow";
 
 export const drawTemplate = (
   ctx: CanvasRenderingContext2D, 
@@ -89,6 +155,15 @@ export const drawTemplate = (
       break;
     case "flower":
       drawFlower(ctx, x, y, size);
+      break;
+    case "heartEyes":
+      drawHeartEyes(ctx, x, y, size);
+      break;
+    case "cloud":
+      drawCloud(ctx, x, y, size);
+      break;
+    case "arrow":
+      drawArrow(ctx, x, y, size);
       break;
   }
   

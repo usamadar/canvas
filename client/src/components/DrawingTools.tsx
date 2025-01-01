@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "../components/ui/card";
 import { Slider } from "../components/ui/slider";
-import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move } from "lucide-react";
+import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move, Cloud, ArrowRight, Smile } from "lucide-react";
 import { TemplateType } from "../lib/templates";
 
 interface DrawingToolsProps {
@@ -80,7 +80,7 @@ export default function DrawingTools({
 
         <div className="space-y-2">
           <label className="text-sm text-gray-600">Templates</label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
                 selectedTemplate === "star"
@@ -113,6 +113,39 @@ export default function DrawingTools({
               aria-label="Flower template"
             >
               <Flower2 className="w-6 h-6 mx-auto" />
+            </button>
+            <button
+              className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+                selectedTemplate === "heartEyes"
+                  ? "bg-pink-100 border-pink-400"
+                  : "border-transparent hover:bg-gray-100"
+              }`}
+              onClick={() => onSelectTemplate(selectedTemplate === "heartEyes" ? null : "heartEyes")}
+              aria-label="Heart Eyes template"
+            >
+              <Smile className="w-6 h-6 mx-auto" />
+            </button>
+            <button
+              className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+                selectedTemplate === "cloud"
+                  ? "bg-pink-100 border-pink-400"
+                  : "border-transparent hover:bg-gray-100"
+              }`}
+              onClick={() => onSelectTemplate(selectedTemplate === "cloud" ? null : "cloud")}
+              aria-label="Cloud template"
+            >
+              <Cloud className="w-6 h-6 mx-auto" />
+            </button>
+            <button
+              className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+                selectedTemplate === "arrow"
+                  ? "bg-pink-100 border-pink-400"
+                  : "border-transparent hover:bg-gray-100"
+              }`}
+              onClick={() => onSelectTemplate(selectedTemplate === "arrow" ? null : "arrow")}
+              aria-label="Arrow template"
+            >
+              <ArrowRight className="w-6 h-6 mx-auto" />
             </button>
           </div>
         </div>

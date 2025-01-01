@@ -20,6 +20,8 @@ interface CanvasRef {
   toDataURL: () => string;
 }
 
+const RESIZE_HANDLE_SIZE = 10;
+
 const Canvas = forwardRef<CanvasRef, CanvasProps>(
   ({ color, tool, brushSize, selectedTemplate }, ref) => {
     const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,6 +30,9 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
     const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
     const [templates, setTemplates] = useState<Template[]>([]);
     const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number | null>(null);
+    const [isResizing, setIsResizing] = useState(false);
+    const [resizeStartSize, setResizeStartSize] = useState<number>(0);
+    const [resizeStartPos, setResizeStartPos] = useState<{ x: number; y: number } | null>(null);
 
     // Forward the drawing canvas ref for saving
     useImperativeHandle(ref, () => ({
@@ -140,6 +145,95 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       }
     };
 
+    const drawResizeHandles = (ctx: CanvasRenderingContext2D, template: Template) => {
+      if (selectedTemplateIndex === null || tool !== "move") return;
+
+      // Draw selection rectangle
+      ctx.strokeStyle = "#00a8ff";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      
+      // Draw selection rectangle around the template
+      const halfSize = template.size / 2;
+      ctx.beginPath();
+      ctx.rect(
+        template.x - halfSize - 5,
+        template.y - halfSize - 5,
+        template.size + 10,
+        template.size + 10
+      );
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw resize handles at corners
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "#00a8ff";
+      ctx.lineWidth = 2;
+
+      // Top-left handle
+      ctx.beginPath();
+      ctx.rect(
+        template.x - halfSize - RESIZE_HANDLE_SIZE,
+        template.y - halfSize - RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE
+      );
+      ctx.fill();
+      ctx.stroke();
+
+      // Top-right handle
+      ctx.beginPath();
+      ctx.rect(
+        template.x + halfSize,
+        template.y - halfSize - RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE
+      );
+      ctx.fill();
+      ctx.stroke();
+
+      // Bottom-left handle
+      ctx.beginPath();
+      ctx.rect(
+        template.x - halfSize - RESIZE_HANDLE_SIZE,
+        template.y + halfSize,
+        RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE
+      );
+      ctx.fill();
+      ctx.stroke();
+
+      // Bottom-right handle
+      ctx.beginPath();
+      ctx.rect(
+        template.x + halfSize,
+        template.y + halfSize,
+        RESIZE_HANDLE_SIZE,
+        RESIZE_HANDLE_SIZE
+      );
+      ctx.fill();
+      ctx.stroke();
+    };
+
+    const isOverResizeHandle = (template: Template, pos: { x: number; y: number }) => {
+      const halfSize = template.size / 2;
+      const handles = [
+        // Top-left
+        { x: template.x - halfSize - RESIZE_HANDLE_SIZE/2, y: template.y - halfSize - RESIZE_HANDLE_SIZE/2 },
+        // Top-right
+        { x: template.x + halfSize + RESIZE_HANDLE_SIZE/2, y: template.y - halfSize - RESIZE_HANDLE_SIZE/2 },
+        // Bottom-left
+        { x: template.x - halfSize - RESIZE_HANDLE_SIZE/2, y: template.y + halfSize + RESIZE_HANDLE_SIZE/2 },
+        // Bottom-right
+        { x: template.x + halfSize + RESIZE_HANDLE_SIZE/2, y: template.y + halfSize + RESIZE_HANDLE_SIZE/2 }
+      ];
+
+      return handles.some(handle => 
+        Math.abs(pos.x - handle.x) <= RESIZE_HANDLE_SIZE &&
+        Math.abs(pos.y - handle.y) <= RESIZE_HANDLE_SIZE
+      );
+    };
+
     const redrawTemplates = () => {
       const canvas = templateCanvasRef.current;
       const ctx = canvas?.getContext("2d");
@@ -149,8 +243,11 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Redraw all templates
-      templates.forEach((template) => {
+      templates.forEach((template, index) => {
         drawTemplate(ctx, template.type, template.x, template.y, template.size);
+        if (index === selectedTemplateIndex) {
+          drawResizeHandles(ctx, template);
+        }
       });
     };
 
@@ -182,13 +279,34 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
 
     useEffect(() => {
       redrawTemplates();
-    }, [templates]);
+    }, [templates, tool, selectedTemplateIndex]);
+
+    // Clear selection when switching away from move tool
+    useEffect(() => {
+      if (tool !== "move") {
+        setSelectedTemplateIndex(null);
+        redrawTemplates(); // Force immediate redraw
+      }
+    }, [tool]);
 
     const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();
       const pos = getEventPosition(e);
 
       if (tool === "move") {
+        // Check if clicked on resize handle first
+        if (selectedTemplateIndex !== null) {
+          const selectedTemplate = templates[selectedTemplateIndex];
+          if (isOverResizeHandle(selectedTemplate, pos)) {
+            setIsResizing(true);
+            setResizeStartSize(selectedTemplate.size);
+            setResizeStartPos(pos);
+            setIsDrawing(true);
+            setLastPos(pos);
+            return;
+          }
+        }
+
         // Check if clicked on a template
         const clickedTemplateIndex = templates.findIndex((template) => {
           const dx = template.x - pos.x;
@@ -200,6 +318,8 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
           setSelectedTemplateIndex(clickedTemplateIndex);
           setIsDrawing(true);
           setLastPos(pos);
+        } else {
+          setSelectedTemplateIndex(null);
         }
       } else {
         // Draw a dot when starting to draw
@@ -223,16 +343,28 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       const currentPos = getEventPosition(e);
 
       if (tool === "move" && selectedTemplateIndex !== null) {
-        // Move the selected template
-        const dx = currentPos.x - lastPos.x;
-        const dy = currentPos.y - lastPos.y;
+        if (isResizing && resizeStartPos) {
+          // Calculate size change based on diagonal drag
+          const dx = currentPos.x - resizeStartPos.x;
+          const dy = currentPos.y - resizeStartPos.y;
+          const sizeDelta = Math.max(dx, dy);
+          
+          setTemplates(prev => prev.map((template, index) => 
+            index === selectedTemplateIndex
+              ? { ...template, size: Math.max(20, resizeStartSize + sizeDelta * 2) }
+              : template
+          ));
+        } else {
+          // Move the selected template
+          const dx = currentPos.x - lastPos.x;
+          const dy = currentPos.y - lastPos.y;
 
-        setTemplates(prev => prev.map((template, index) => 
-          index === selectedTemplateIndex
-            ? { ...template, x: template.x + dx, y: template.y + dy }
-            : template
-        ));
-
+          setTemplates(prev => prev.map((template, index) => 
+            index === selectedTemplateIndex
+              ? { ...template, x: template.x + dx, y: template.y + dy }
+              : template
+          ));
+        }
         setLastPos(currentPos);
       } else if (tool !== "move") {
         const canvas = drawingCanvasRef.current;
@@ -256,7 +388,8 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
     const stopDrawing = () => {
       setIsDrawing(false);
       setLastPos(null);
-      setSelectedTemplateIndex(null);
+      setIsResizing(false);
+      setResizeStartPos(null);
     };
 
     return (
@@ -269,7 +402,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
               cursor: tool === 'move' ? 'move' :
                 tool === 'brush' ? 
                   `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='black'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto` :
-                  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black' stroke-width='4'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`
+                  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`
             }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
