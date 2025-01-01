@@ -6,7 +6,7 @@
 export function clearCanvas(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  
+
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
@@ -35,23 +35,6 @@ export function drawLine(
 }
 
 /**
- * Get the position of a mouse or touch event relative to the canvas
- */
-export function getRelativeEventPosition(
-  event: MouseEvent | TouchEvent,
-  canvas: HTMLCanvasElement
-) {
-  const rect = canvas.getBoundingClientRect();
-  const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-  const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-  
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
-}
-
-/**
  * Load and draw an image onto the canvas
  */
 export function loadImageToCanvas(
@@ -63,12 +46,6 @@ export function loadImageToCanvas(
     centerImage?: boolean;
   } = {}
 ): Promise<void> {
-  const {
-    scale = 1,
-    preserveAspectRatio = true,
-    centerImage = true
-  } = options;
-  
   return new Promise((resolve, reject) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -77,43 +54,70 @@ export function loadImageToCanvas(
     }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    
+    img.crossOrigin = 'anonymous'; // Enable CORS
+
     img.onload = () => {
-      // Clear canvas first
-      clearCanvas(canvas);
-      
-      let drawWidth = img.width * scale;
-      let drawHeight = img.height * scale;
-      
-      if (preserveAspectRatio) {
-        const scaleFactor = Math.min(
-          canvas.width / img.width,
-          canvas.height / img.height
-        ) * scale;
-        
-        drawWidth = img.width * scaleFactor;
-        drawHeight = img.height * scaleFactor;
+      // Get the device pixel ratio
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
+
+      // Set canvas dimensions accounting for device pixel ratio
+      canvas.width = displayWidth * dpr;
+      canvas.height = displayHeight * dpr;
+
+      // Scale context for retina display
+      ctx.scale(dpr, dpr);
+
+      // Clear canvas and set white background
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+      // Calculate dimensions while preserving aspect ratio
+      const scale = options.scale || 0.8;
+      const aspectRatio = img.width / img.height;
+
+      let drawWidth = displayWidth * scale;
+      let drawHeight = drawWidth / aspectRatio;
+
+      // Adjust if height is too large
+      if (drawHeight > displayHeight * scale) {
+        drawHeight = displayHeight * scale;
+        drawWidth = drawHeight * aspectRatio;
       }
-      
-      let x = 0;
-      let y = 0;
-      
-      if (centerImage) {
-        x = (canvas.width - drawWidth) / 2;
-        y = (canvas.height - drawHeight) / 2;
-      }
-      
+
+      // Calculate position to center the image
+      const x = (displayWidth - drawWidth) / 2;
+      const y = (displayHeight - drawHeight) / 2;
+
+      // Draw the image
       ctx.drawImage(img, x, y, drawWidth, drawHeight);
       resolve();
     };
-    
+
     img.onerror = () => {
       reject(new Error('Failed to load image'));
     };
-    
+
     img.src = imageUrl;
   });
+}
+
+/**
+ * Get the position of a mouse or touch event relative to the canvas
+ */
+export function getRelativeEventPosition(
+  event: MouseEvent | TouchEvent,
+  canvas: HTMLCanvasElement
+) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+  const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
 }
 
 /**
@@ -138,7 +142,7 @@ export function saveCanvasAsPNG(canvas: HTMLCanvasElement, filename: string): vo
 export function getCanvasState(canvas: HTMLCanvasElement): ImageData | null {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
-  
+
   return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
@@ -151,7 +155,7 @@ export function restoreCanvasState(
 ): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  
+
   ctx.putImageData(imageData, 0, 0);
 }
 
@@ -183,23 +187,23 @@ export function smoothLine(
   width: number
 ) {
   if (points.length < 2) return;
-  
+
   ctx.beginPath();
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  
+
   // Move to the first point
   ctx.moveTo(points[0].x, points[0].y);
-  
+
   // Create a smooth curve through all points
   for (let i = 1; i < points.length - 2; i++) {
     const xc = (points[i].x + points[i + 1].x) / 2;
     const yc = (points[i].y + points[i + 1].y) / 2;
     ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
   }
-  
+
   // Curve through the last two points
   if (points.length > 2) {
     const last = points.length - 1;
@@ -210,7 +214,7 @@ export function smoothLine(
       points[last].y
     );
   }
-  
+
   ctx.stroke();
   ctx.closePath();
 }
