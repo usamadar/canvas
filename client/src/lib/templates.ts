@@ -9,27 +9,25 @@ export const templates: Template[] = [
     name: "Heart",
     thumbnail: "💖",
     draw: (ctx, width, height) => {
-      // Draw at 1/3 of the canvas size for visibility
-      const w = width / 3;
-      const h = height / 3;
-      const x = width / 2;  // center x
-      const y = height / 2; // center y
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const scale = Math.min(width, height) * 0.3;
 
       ctx.beginPath();
-      ctx.moveTo(x, y + h/4);
+      ctx.moveTo(centerX, centerY + scale * 0.3);
 
       // Left curve
       ctx.bezierCurveTo(
-        x - w/2, y - h/2,  // control point 1
-        x - w/2, y - h/4,  // control point 2
-        x, y + h/4   // end point
+        centerX - scale * 0.5, centerY - scale * 0.3,
+        centerX - scale * 0.5, centerY,
+        centerX, centerY + scale * 0.3
       );
 
       // Right curve
       ctx.bezierCurveTo(
-        x + w/2, y - h/4,  // control point 1
-        x + w/2, y - h/2,  // control point 2
-        x, y + h/4   // end point
+        centerX + scale * 0.5, centerY,
+        centerX + scale * 0.5, centerY - scale * 0.3,
+        centerX, centerY + scale * 0.3
       );
 
       ctx.stroke();
@@ -39,26 +37,30 @@ export const templates: Template[] = [
     name: "Star",
     thumbnail: "⭐",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height) / 3;
-      const x = width / 2;
-      const y = height / 2;
-      const points = 5;
-      const outerRadius = size / 2;
-      const innerRadius = outerRadius * 0.4;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) * 0.15;
 
       ctx.beginPath();
-      for (let i = 0; i < points * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (i * Math.PI) / points - Math.PI / 2;
-        const pointX = x + radius * Math.cos(angle);
-        const pointY = y + radius * Math.sin(angle);
+      for (let i = 0; i < 5; i++) {
+        const angle = ((i * 4 * Math.PI) / 5) - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
 
         if (i === 0) {
-          ctx.moveTo(pointX, pointY);
+          ctx.moveTo(x, y);
         } else {
-          ctx.lineTo(pointX, pointY);
+          ctx.lineTo(x, y);
         }
+
+        // Draw inner point
+        const innerAngle = angle + Math.PI / 5;
+        const innerRadius = radius * 0.4;
+        const innerX = centerX + Math.cos(innerAngle) * innerRadius;
+        const innerY = centerY + Math.sin(innerAngle) * innerRadius;
+        ctx.lineTo(innerX, innerY);
       }
+
       ctx.closePath();
       ctx.stroke();
     }
@@ -67,25 +69,21 @@ export const templates: Template[] = [
     name: "Flower",
     thumbnail: "🌸",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height) / 3;
-      const x = width / 2;
-      const y = height / 2;
-      const petalSize = size / 4;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) * 0.15;
 
       // Draw petals
       for (let i = 0; i < 6; i++) {
         const angle = (i * Math.PI) / 3;
-        const dx = Math.cos(angle) * petalSize;
-        const dy = Math.sin(angle) * petalSize;
-
         ctx.beginPath();
         ctx.ellipse(
-          x + dx, 
-          y + dy, 
-          petalSize * 0.7, 
-          petalSize * 1.2, 
-          angle, 
-          0, 
+          centerX + Math.cos(angle) * radius * 0.7,
+          centerY + Math.sin(angle) * radius * 0.7,
+          radius * 0.5,
+          radius * 0.8,
+          angle,
+          0,
           Math.PI * 2
         );
         ctx.stroke();
@@ -93,7 +91,7 @@ export const templates: Template[] = [
 
       // Draw center
       ctx.beginPath();
-      ctx.arc(x, y, petalSize * 0.5, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
       ctx.stroke();
     }
   },
@@ -101,50 +99,49 @@ export const templates: Template[] = [
     name: "Butterfly",
     thumbnail: "🦋",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height) / 3;
-      const x = width / 2;
-      const y = height / 2;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const scale = Math.min(width, height) * 0.2;
 
-      // Draw wings
-      // Left upper wing
+      // Left wing
       ctx.beginPath();
-      ctx.moveTo(x, y);
+      ctx.moveTo(centerX, centerY);
       ctx.bezierCurveTo(
-        x - size/2, y - size/2,
-        x - size/2, y - size/4,
-        x, y
+        centerX - scale, centerY - scale,
+        centerX - scale * 1.2, centerY - scale * 0.5,
+        centerX, centerY
       );
 
       // Left lower wing
-      ctx.moveTo(x, y);
+      ctx.moveTo(centerX, centerY);
       ctx.bezierCurveTo(
-        x - size/2, y + size/2,
-        x - size/2, y + size/4,
-        x, y
+        centerX - scale, centerY + scale,
+        centerX - scale * 1.2, centerY + scale * 0.5,
+        centerX, centerY
       );
 
-      // Right upper wing
-      ctx.moveTo(x, y);
+      // Right wing
+      ctx.moveTo(centerX, centerY);
       ctx.bezierCurveTo(
-        x + size/2, y - size/2,
-        x + size/2, y - size/4,
-        x, y
+        centerX + scale, centerY - scale,
+        centerX + scale * 1.2, centerY - scale * 0.5,
+        centerX, centerY
       );
 
       // Right lower wing
-      ctx.moveTo(x, y);
+      ctx.moveTo(centerX, centerY);
       ctx.bezierCurveTo(
-        x + size/2, y + size/2,
-        x + size/2, y + size/4,
-        x, y
+        centerX + scale, centerY + scale,
+        centerX + scale * 1.2, centerY + scale * 0.5,
+        centerX, centerY
       );
 
       ctx.stroke();
 
-      // Draw body
+      // Body
       ctx.beginPath();
-      ctx.moveTo(x, y - size/4);
-      ctx.lineTo(x, y + size/4);
+      ctx.moveTo(centerX, centerY - scale * 0.8);
+      ctx.lineTo(centerX, centerY + scale * 0.8);
       ctx.stroke();
     }
   }

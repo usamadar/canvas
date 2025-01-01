@@ -8,7 +8,7 @@ export default function TemplateGallery() {
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
-  const loadTemplate = (template: (typeof templates)[0], index: number) => {
+  const loadTemplate = async (template: (typeof templates)[0], index: number) => {
     const canvas = document.querySelector("canvas");
     if (!canvas) {
       toast({
@@ -25,19 +25,31 @@ export default function TemplateGallery() {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
-      // Get the actual drawing dimensions (without DPI scaling)
+      // Reset any transformations
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+      // Get actual drawing dimensions
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
-      // Clear canvas with white background
+      // Clear the canvas with white background
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
-      // Set up drawing style
+      // Set drawing style
       ctx.strokeStyle = "black";
       ctx.lineWidth = 2;
 
-      // Draw the template using client dimensions
+      // Debug log
+      console.log('Drawing template', {
+        template: template.name,
+        dimensions: rect,
+        dpr,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height
+      });
+
+      // Draw template with client dimensions
       template.draw(ctx, rect.width, rect.height);
 
       toast({
