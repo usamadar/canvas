@@ -1,47 +1,60 @@
-export const templates = [
-  {
-    name: "Butterfly",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M200 100 C150 50 100 50 50 100 C0 150 0 200 50 250 C100 300 150 300 200 250 M200 100 C250 50 300 50 350 100 C400 150 400 200 350 250 C300 300 250 300 200 250 M200 100 L200 300 M180 150 L220 150"/>`,
-    thumbnail: "🦋"
-  },
+interface Template {
+  name: string;
+  path: string;
+  thumbnail: string;
+}
+
+export const templates: Template[] = [
   {
     name: "Heart",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M200 300 C150 250 50 200 50 125 C50 75 100 50 150 75 C175 90 200 150 200 150 C200 150 225 90 250 75 C300 50 350 75 350 125 C350 200 250 250 200 300 Z"/>`,
+    path: "M 200,300 C 150,250 50,200 50,125 C 50,75 100,50 150,75 C 175,90 200,150 200,150 C 200,150 225,90 250,75 C 300,50 350,75 350,125 C 350,200 250,250 200,300 Z",
     thumbnail: "💖"
   },
   {
-    name: "Flower",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M200 100 C150 50 100 50 100 100 C100 150 150 150 200 100 M200 100 C250 50 300 50 300 100 C300 150 250 150 200 100 M200 200 C150 150 100 150 100 200 C100 250 150 250 200 200 M200 200 C250 150 300 150 300 200 C300 250 250 250 200 200 M200 150 L200 250"/>`,
-    thumbnail: "🌸"
-  },
-  {
     name: "Star",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M200 50 L230 150 L330 150 L250 200 L280 300 L200 240 L120 300 L150 200 L70 150 L170 150 Z"/>`,
+    path: "M 200,50 L 230,150 L 330,150 L 250,200 L 280,300 L 200,240 L 120,300 L 150,200 L 70,150 L 170,150 Z",
     thumbnail: "⭐"
   },
   {
-    name: "Castle",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M50 300 L50 200 L100 200 L100 150 L150 150 L150 100 L250 100 L250 150 L300 150 L300 200 L350 200 L350 300 L275 300 L275 250 L225 250 L225 300 L175 300 L175 250 L125 250 L125 300 Z M150 100 L150 50 L175 25 L200 50 L225 25 L250 50 L250 100"/>`,
-    thumbnail: "🏰"
+    name: "Flower",
+    path: "M 200,150 C 180,100 120,100 120,150 C 120,200 180,200 200,150 M 200,150 C 220,100 280,100 280,150 C 280,200 220,200 200,150 M 200,250 C 180,200 120,200 120,250 C 120,300 180,300 200,250 M 200,250 C 220,200 280,200 280,250 C 280,300 220,300 200,250",
+    thumbnail: "🌸"
   },
   {
-    name: "Rainbow",
-    url: `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-      <path fill="none" stroke="black" stroke-width="2" d="M50 300 C50 200 150 100 200 100 C250 100 350 200 350 300 M75 300 C75 225 150 150 200 150 C250 150 325 225 325 300 M100 300 C100 250 150 200 200 200 C250 200 300 250 300 300"/>`,
-    thumbnail: "🌈"
+    name: "Butterfly",
+    path: "M 200,100 C 150,50 100,50 50,100 C 0,150 0,200 50,250 C 100,300 150,300 200,250 M 200,100 C 250,50 300,50 350,100 C 400,150 400,200 350,250 C 300,300 250,300 200,250 M 200,100 L 200,300",
+    thumbnail: "🦋"
   }
 ];
 
-export function createSVGTemplate(svgContent: string): string {
-  // Ensure SVG content has proper XML declaration and namespace
-  const fullSVG = svgContent.trim();
+export function drawTemplateOnCanvas(canvas: HTMLCanvasElement, path: string): void {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-  // Create a properly encoded data URL
-  const base64 = btoa(fullSVG);
-  return `data:image/svg+xml;base64,${base64}`;
+  // Clear canvas with white background
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Set up the path styling
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Create a new path from the SVG path data
+  const templatePath = new Path2D(path);
+
+  // Scale and center the path
+  const scale = 0.8;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.scale(scale, scale);
+  ctx.translate(-200, -200); // Center based on viewBox
+
+  // Draw the path
+  ctx.stroke(templatePath);
+  ctx.restore();
 }

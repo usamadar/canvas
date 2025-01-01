@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { templates, createSVGTemplate } from "@/lib/templates";
-import { loadImageToCanvas } from "@/lib/drawingUtils";
+import { templates, drawTemplateOnCanvas } from "@/lib/templates";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -9,7 +8,7 @@ export default function TemplateGallery() {
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
-  const loadTemplate = async (template: { url: string; name: string }, index: number) => {
+  const loadTemplate = async (template: { path: string; name: string }, index: number) => {
     const canvas = document.querySelector("canvas");
     if (!canvas) {
       toast({
@@ -23,14 +22,7 @@ export default function TemplateGallery() {
     setLoadingTemplate(index);
 
     try {
-      // Convert SVG content to data URL
-      const dataUrl = createSVGTemplate(template.url);
-
-      await loadImageToCanvas(canvas, dataUrl, {
-        scale: 0.8,
-        preserveAspectRatio: true,
-        centerImage: true,
-      });
+      drawTemplateOnCanvas(canvas, template.path);
 
       toast({
         title: "Template Loaded",
@@ -41,7 +33,7 @@ export default function TemplateGallery() {
       console.error("Failed to load template:", error);
       toast({
         title: "Error",
-        description: "Failed to load template. Please try a different one.",
+        description: "Failed to load template. Please try again.",
         variant: "destructive",
       });
     } finally {
