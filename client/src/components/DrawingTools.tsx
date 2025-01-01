@@ -1,12 +1,12 @@
 import React from "react";
 import { Card } from "../components/ui/card";
 import { Slider } from "../components/ui/slider";
-import { Pencil, Eraser, Star, Heart, Flower2, Trash2 } from "lucide-react";
+import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move } from "lucide-react";
 import { TemplateType } from "../lib/templates";
 
 interface DrawingToolsProps {
-  selectedTool: "brush" | "eraser";
-  onToolChange: (tool: "brush" | "eraser") => void;
+  selectedTool: "brush" | "eraser" | "move";
+  onToolChange: (tool: "brush" | "eraser" | "move") => void;
   brushSize: number;
   onBrushSizeChange: (size: number) => void;
   selectedTemplate: TemplateType | null;
@@ -29,41 +29,53 @@ export default function DrawingTools({
       
       <div className="space-y-4">
         <div className="flex gap-2">
-        <button
-          className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
-            selectedTool === "brush"
-              ? "bg-pink-100 border-pink-400"
-              : "border-transparent hover:bg-gray-100"
-          }`}
-          onClick={() => onToolChange("brush")}
-          aria-label="Brush tool"
-        >
-          <Pencil className="w-6 h-6 mx-auto" />
-        </button>
-        
-        <button
-          className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
-            selectedTool === "eraser"
-              ? "bg-pink-100 border-pink-400"
-              : "border-transparent hover:bg-gray-100"
-          }`}
-          onClick={() => onToolChange("eraser")}
-          aria-label="Eraser tool"
-        >
-          <Eraser className="w-6 h-6 mx-auto" />
-        </button>
+          <button
+            className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+              selectedTool === "brush"
+                ? "bg-pink-100 border-pink-400"
+                : "border-transparent hover:bg-gray-100"
+            }`}
+            onClick={() => onToolChange("brush")}
+            aria-label="Brush tool"
+          >
+            <Pencil className="w-6 h-6 mx-auto" />
+          </button>
+          
+          <button
+            className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+              selectedTool === "eraser"
+                ? "bg-pink-100 border-pink-400"
+                : "border-transparent hover:bg-gray-100"
+            }`}
+            onClick={() => onToolChange("eraser")}
+            aria-label="Eraser tool"
+          >
+            <Eraser className="w-6 h-6 mx-auto" />
+          </button>
+
+          <button
+            className={`flex-1 p-3 rounded-lg border-2 transition-colors ${
+              selectedTool === "move"
+                ? "bg-pink-100 border-pink-400"
+                : "border-transparent hover:bg-gray-100"
+            }`}
+            onClick={() => onToolChange("move")}
+            aria-label="Move tool"
+          >
+            <Move className="w-6 h-6 mx-auto" />
+          </button>
         </div>
 
         <div className="space-y-2">
-        <label className="text-sm text-gray-600">Brush Size</label>
-        <Slider
-          min={1}
-          max={20}
-          step={1}
-          value={[brushSize]}
-          onValueChange={(value) => onBrushSizeChange(value[0])}
-          className="w-full"
-        />
+          <label className="text-sm text-gray-600">Brush Size</label>
+          <Slider
+            min={1}
+            max={20}
+            step={1}
+            value={[brushSize]}
+            onValueChange={(value) => onBrushSizeChange(value[0])}
+            className="w-full"
+          />
         </div>
 
         <div className="space-y-2">

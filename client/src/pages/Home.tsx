@@ -7,20 +7,22 @@ import { Button } from "../components/ui/button";
 import { Save } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 
+interface CanvasRef {
+  toDataURL: () => string;
+}
+
 export default function Home() {
   const [selectedColor, setSelectedColor] = useState("#FF69B4");
-  const [selectedTool, setSelectedTool] = useState<"brush" | "eraser">("brush");
+  const [selectedTool, setSelectedTool] = useState<"brush" | "eraser" | "move">("brush");
   const [brushSize, setBrushSize] = useState(5);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<CanvasRef | null>(null);
   const { toast } = useToast();
 
   const handleClearCanvas = () => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    // Trigger a clear on the canvas component
+    const clearEvent = new CustomEvent('clearCanvas');
+    window.dispatchEvent(clearEvent);
   };
 
   // Reset template selection after it's drawn
@@ -37,7 +39,9 @@ export default function Home() {
       if (!canvasRef.current) {
         throw new Error("Canvas not found");
       }
-      const dataUrl = canvasRef.current.toDataURL("image/png");
+
+      // Get the data URL from our custom method
+      const dataUrl = canvasRef.current.toDataURL();
       const link = document.createElement("a");
       link.download = "my-drawing.png";
       link.href = dataUrl;
@@ -72,7 +76,6 @@ export default function Home() {
             selectedColor={selectedColor}
             onColorChange={setSelectedColor}
           />
-
           <DrawingTools
             selectedTool={selectedTool}
             onToolChange={setSelectedTool}
@@ -83,7 +86,6 @@ export default function Home() {
             onClearCanvas={handleClearCanvas}
           />
         </div>
-
         <div className="space-y-4">
           <Canvas
             ref={canvasRef}
@@ -92,7 +94,6 @@ export default function Home() {
             brushSize={brushSize}
             selectedTemplate={selectedTemplate}
           />
-
           <div className="flex justify-end gap-4">
             <Button
               variant="outline"
