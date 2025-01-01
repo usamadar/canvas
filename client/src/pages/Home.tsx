@@ -62,47 +62,51 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-pink-50 p-4">
-      <header className="text-center mb-6">
-        <h1 className="text-4xl font-bold text-pink-600 mb-2">
-          🎨 Little Artist Studio
-        </h1>
-        <p className="text-pink-400">Let's create something beautiful!</p>
-      </header>
+    <div className="min-h-screen bg-pink-50 p-2 sm:p-4">
+      <div className="max-w-6xl mx-auto space-y-2 sm:space-y-4">
+        <header className="text-center">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-2xl sm:text-3xl">🎨</span>
+            <h1 className="text-2xl sm:text-3xl font-bold text-pink-500">Little Artist Studio</h1>
+          </div>
+          <p className="text-pink-400 mt-1">Let's create something beautiful!</p>
+        </header>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-        <div className="space-y-6">
-          <ColorPalette
-            selectedColor={selectedColor}
-            onColorChange={setSelectedColor}
-          />
-          <DrawingTools
-            selectedTool={selectedTool}
-            onToolChange={setSelectedTool}
-            brushSize={brushSize}
-            onBrushSizeChange={setBrushSize}
-            selectedTemplate={selectedTemplate}
-            onSelectTemplate={setSelectedTemplate}
-            onClearCanvas={handleClearCanvas}
-          />
-        </div>
-        <div className="space-y-4">
-          <Canvas
-            ref={canvasRef}
-            color={selectedColor}
-            tool={selectedTool}
-            brushSize={brushSize}
-            selectedTemplate={selectedTemplate}
-          />
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              className="bg-white"
-              onClick={handleSave}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Artwork
-            </Button>
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-2 sm:gap-4">
+          <div className="flex flex-col gap-2 sm:gap-4">
+            <ColorPalette
+              selectedColor={selectedColor}
+              onColorChange={setSelectedColor}
+            />
+            <DrawingTools
+              selectedTool={selectedTool}
+              onToolChange={setSelectedTool}
+              brushSize={brushSize}
+              onBrushSizeChange={setBrushSize}
+              selectedTemplate={selectedTemplate}
+              onSelectTemplate={setSelectedTemplate}
+              onClearCanvas={handleClearCanvas}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 sm:gap-4">
+            <Canvas
+              ref={canvasRef}
+              color={selectedColor}
+              tool={selectedTool}
+              brushSize={brushSize}
+              selectedTemplate={selectedTemplate}
+            />
+            
+            <div className="flex justify-end">
+              <button
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-pink-600 bg-white rounded-lg shadow hover:bg-pink-50"
+                onClick={handleSave}
+              >
+                <Save className="w-4 h-4" />
+                Save Artwork
+              </button>
+            </div>
           </div>
         </div>
       </div>

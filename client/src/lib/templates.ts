@@ -133,7 +133,122 @@ export const drawArrow = (ctx: CanvasRenderingContext2D, x: number, y: number, s
   ctx.stroke();
 };
 
-export type TemplateType = "star" | "heart" | "flower" | "heartEyes" | "cloud" | "arrow";
+export const drawCat = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+  // Scale factor to fit our coordinate system
+  const scale = size / 24;  // SVG viewport is 24x24
+  
+  ctx.save();
+  ctx.translate(x - size/2, y - size/2);  // Center the drawing
+  ctx.scale(scale, scale);
+
+  // Draw the cat outline
+  ctx.beginPath();
+  // Eyes
+  ctx.moveTo(8.5, 4.5);
+  ctx.lineTo(8.5, 5);
+  ctx.moveTo(11.5, 4.5);
+  ctx.lineTo(11.5, 5);
+
+  // Main body outline
+  ctx.moveTo(7.5, 23.5);
+  ctx.lineTo(7.5, 8);
+  ctx.lineTo(5.5, 5.5);
+  ctx.lineTo(5.5, 0.5);
+  ctx.lineTo(9, 2.5);
+  ctx.lineTo(11.5, 2.5);
+  ctx.lineTo(14.5, 0.5);
+  ctx.lineTo(14.5, 5.5);
+  ctx.lineTo(12.5, 8);
+  ctx.lineTo(20.5, 14);
+  ctx.lineTo(22.5, 20);
+  ctx.lineTo(20.5, 23.5);
+  ctx.lineTo(5, 23.5);
+  ctx.lineTo(2.5, 21);
+  ctx.lineTo(5, 16.5);
+  ctx.lineTo(1.5, 13);
+
+  // Vertical lines
+  ctx.moveTo(12.5, 23.5);
+  ctx.lineTo(12.5, 13.5);
+  ctx.moveTo(9.5, 23.5);
+  ctx.lineTo(9.5, 13.5);
+
+  // Additional details
+  ctx.moveTo(17.5, 17.5);
+  ctx.lineTo(15, 17.5);
+  ctx.lineTo(12.5, 21.5);
+
+  // Nose
+  ctx.moveTo(9.5, 7);
+  ctx.lineTo(10, 6.5);
+  ctx.lineTo(10.5, 7);
+
+  ctx.stroke();
+  ctx.restore();
+};
+
+export type TemplateType = "star" | "heart" | "flower" | "heartEyes" | "cloud" | "arrow" | "cat";
+
+interface TemplateConfig {
+  type: TemplateType;
+  category: string;
+  lineWidth: number;
+  strokeStyle: string;
+  drawFunction: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => void;
+}
+
+// Template configurations
+export const templateConfigs: Record<TemplateType, TemplateConfig> = {
+  star: {
+    type: "star",
+    category: "Basic",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawStar
+  },
+  heart: {
+    type: "heart",
+    category: "Basic",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawHeart
+  },
+  flower: {
+    type: "flower",
+    category: "Nature",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawFlower
+  },
+  heartEyes: {
+    type: "heartEyes",
+    category: "Emoji",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawHeartEyes
+  },
+  cloud: {
+    type: "cloud",
+    category: "Nature",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawCloud
+  },
+  arrow: {
+    type: "arrow",
+    category: "Basic",
+    lineWidth: 2,
+    strokeStyle: "#666",
+    drawFunction: drawArrow
+  },
+  cat: {
+    type: "cat",
+    category: "Animals",
+    lineWidth: 0.5,
+    strokeStyle: "#666",
+    drawFunction: drawCat
+  }
+};
 
 export const drawTemplate = (
   ctx: CanvasRenderingContext2D, 
@@ -142,30 +257,13 @@ export const drawTemplate = (
   y: number, 
   size: number
 ) => {
-  ctx.save();
-  ctx.strokeStyle = "#666";
-  ctx.lineWidth = 2;
+  const config = templateConfigs[template];
   
-  switch (template) {
-    case "star":
-      drawStar(ctx, x, y, size);
-      break;
-    case "heart":
-      drawHeart(ctx, x, y, size);
-      break;
-    case "flower":
-      drawFlower(ctx, x, y, size);
-      break;
-    case "heartEyes":
-      drawHeartEyes(ctx, x, y, size);
-      break;
-    case "cloud":
-      drawCloud(ctx, x, y, size);
-      break;
-    case "arrow":
-      drawArrow(ctx, x, y, size);
-      break;
-  }
+  ctx.save();
+  ctx.strokeStyle = config.strokeStyle;
+  ctx.lineWidth = config.lineWidth;
+  
+  config.drawFunction(ctx, x, y, size);
   
   ctx.restore();
 };

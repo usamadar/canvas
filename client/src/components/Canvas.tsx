@@ -261,12 +261,34 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
+        // Calculate size based on canvas height for all templates
+        let templateSize = rect.height * 0.7;  // Default 70% of canvas height
+        
+        // Adjust size for specific templates that might need different scaling
+        switch (selectedTemplate) {
+          case "cat":
+            templateSize = rect.height * 0.9;  // Cat remains at 90%
+            break;
+          case "heart":
+            templateSize = rect.height * 0.6;  // Slightly smaller for compact shapes
+            break;
+          case "star":
+          case "arrow":
+            templateSize = rect.height * 0.5;  // Arrows typically look better smaller
+            break;
+          case "cloud":
+          case "flower":
+          case "heartEyes":
+            templateSize = rect.height * 0.7;  // 70% for medium-sized templates
+            break;
+        }
+        
         // Add new template to the list
         setTemplates(prev => [...prev, {
           type: selectedTemplate,
           x: centerX,
           y: centerY,
-          size: 100
+          size: templateSize
         }]);
         
         // Reset template selection
