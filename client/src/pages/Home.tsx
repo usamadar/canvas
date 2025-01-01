@@ -1,11 +1,10 @@
-import { useState, useRef } from "react";
-import Canvas from "@/components/Canvas";
-import ColorPalette from "@/components/ColorPalette";
-import DrawingTools from "@/components/DrawingTools";
-import TemplateGallery from "@/components/TemplateGallery";
-import { Button } from "@/components/ui/button";
+import React, { useState, useRef } from "react";
+import Canvas from "../components/Canvas";
+import ColorPalette from "../components/ColorPalette";
+import DrawingTools from "../components/DrawingTools";
+import { Button } from "../components/ui/button";
 import { Save } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast";
 
 export default function Home() {
   const [selectedColor, setSelectedColor] = useState("#FF69B4");
@@ -61,8 +60,6 @@ export default function Home() {
             brushSize={brushSize}
             onBrushSizeChange={setBrushSize}
           />
-
-          <TemplateGallery canvasRef={canvasRef} />
         </div>
 
         <div className="space-y-4">
