@@ -12,30 +12,38 @@ export default function Canvas({ color, tool, brushSize }: CanvasProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
 
-  useEffect(() => {
+  // Initialize canvas with correct size
+  const initializeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const setCanvasSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const displayRect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
 
-      // Set the canvas size in pixels
-      canvas.width = displayRect.width * dpr;
-      canvas.height = displayRect.height * dpr;
+    // Set display size
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
 
-      // Scale all future drawing operations
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.scale(dpr, dpr);
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, displayRect.width, displayRect.height);
-      }
-    };
+    // Set actual size in memory
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
 
-    setCanvasSize();
-    window.addEventListener('resize', setCanvasSize);
-    return () => window.removeEventListener('resize', setCanvasSize);
+    // Get context
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Scale all drawing operations by dpr
+    ctx.scale(dpr, dpr);
+
+    // Set initial white background
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+  };
+
+  useEffect(() => {
+    initializeCanvas();
+    window.addEventListener('resize', initializeCanvas);
+    return () => window.removeEventListener('resize', initializeCanvas);
   }, []);
 
   const getEventPosition = (e: React.MouseEvent | React.TouchEvent) => {
@@ -48,13 +56,13 @@ export default function Canvas({ color, tool, brushSize }: CanvasProps) {
     if ('touches' in e) {
       const touch = e.touches[0];
       return {
-        x: (touch.clientX - rect.left) * dpr,
-        y: (touch.clientY - rect.top) * dpr
+        x: (touch.clientX - rect.left),
+        y: (touch.clientY - rect.top)
       };
     } else {
       return {
-        x: (e.clientX - rect.left) * dpr,
-        y: (e.clientY - rect.top) * dpr
+        x: (e.clientX - rect.left),
+        y: (e.clientY - rect.top)
       };
     }
   };

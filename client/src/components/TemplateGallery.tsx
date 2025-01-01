@@ -25,22 +25,20 @@ export default function TemplateGallery() {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
-      // Log canvas dimensions for debugging
-      console.log('Canvas dimensions:', {
-        width: canvas.width,
-        height: canvas.height,
-        clientWidth: canvas.clientWidth,
-        clientHeight: canvas.clientHeight
-      });
+      // Get the actual drawing dimensions (without DPI scaling)
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
 
       // Clear canvas with white background
       ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, rect.width, rect.height);
 
-      // Draw the template
+      // Set up drawing style
       ctx.strokeStyle = "black";
       ctx.lineWidth = 2;
-      template.draw(ctx, canvas.width, canvas.height);
+
+      // Draw the template using client dimensions
+      template.draw(ctx, rect.width, rect.height);
 
       toast({
         title: "Template Loaded",
