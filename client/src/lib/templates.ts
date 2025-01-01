@@ -9,143 +9,143 @@ export const templates: Template[] = [
     name: "Heart",
     thumbnail: "💖",
     draw: (ctx, width, height) => {
-      // Clear canvas with white background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
-
-      // Set up drawing style
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-
-      // Calculate size and position
-      const size = Math.min(width, height) * 0.4;
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.scale(size/100, size/100);
+      // Draw at 1/3 of the canvas size for visibility
+      const w = width / 3;
+      const h = height / 3;
+      const x = width / 2;  // center x
+      const y = height / 2; // center y
 
       ctx.beginPath();
-      ctx.moveTo(0, 20);
-      ctx.bezierCurveTo(-25, -20, -50, -20, -50, 10);
-      ctx.bezierCurveTo(-50, 40, -25, 50, 0, 60);
-      ctx.bezierCurveTo(25, 50, 50, 40, 50, 10);
-      ctx.bezierCurveTo(50, -20, 25, -20, 0, 20);
+      ctx.moveTo(x, y + h/4);
+
+      // Left curve
+      ctx.bezierCurveTo(
+        x - w/2, y - h/2,  // control point 1
+        x - w/2, y - h/4,  // control point 2
+        x, y + h/4   // end point
+      );
+
+      // Right curve
+      ctx.bezierCurveTo(
+        x + w/2, y - h/4,  // control point 1
+        x + w/2, y - h/2,  // control point 2
+        x, y + h/4   // end point
+      );
+
       ctx.stroke();
-      ctx.restore();
     }
   },
   {
     name: "Star",
     thumbnail: "⭐",
     draw: (ctx, width, height) => {
-      // Clear canvas with white background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
-
-      // Set up drawing style
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-
-      // Calculate size and position
-      const size = Math.min(width, height) * 0.4;
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.scale(size/100, size/100);
+      const size = Math.min(width, height) / 3;
+      const x = width / 2;
+      const y = height / 2;
+      const points = 5;
+      const outerRadius = size / 2;
+      const innerRadius = outerRadius * 0.4;
 
       ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        ctx.lineTo(
-          Math.cos((i * 4 * Math.PI) / 5 - Math.PI/2) * 50,
-          Math.sin((i * 4 * Math.PI) / 5 - Math.PI/2) * 50
-        );
-        ctx.lineTo(
-          Math.cos(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20,
-          Math.sin(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20
-        );
+      for (let i = 0; i < points * 2; i++) {
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const angle = (i * Math.PI) / points - Math.PI / 2;
+        const pointX = x + radius * Math.cos(angle);
+        const pointY = y + radius * Math.sin(angle);
+
+        if (i === 0) {
+          ctx.moveTo(pointX, pointY);
+        } else {
+          ctx.lineTo(pointX, pointY);
+        }
       }
       ctx.closePath();
       ctx.stroke();
-      ctx.restore();
     }
   },
   {
     name: "Flower",
     thumbnail: "🌸",
     draw: (ctx, width, height) => {
-      // Clear canvas with white background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
-
-      // Set up drawing style
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-
-      // Calculate size and position
-      const size = Math.min(width, height) * 0.4;
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.scale(size/100, size/100);
+      const size = Math.min(width, height) / 3;
+      const x = width / 2;
+      const y = height / 2;
+      const petalSize = size / 4;
 
       // Draw petals
       for (let i = 0; i < 6; i++) {
-        ctx.rotate(Math.PI / 3);
+        const angle = (i * Math.PI) / 3;
+        const dx = Math.cos(angle) * petalSize;
+        const dy = Math.sin(angle) * petalSize;
+
         ctx.beginPath();
-        ctx.ellipse(0, -25, 15, 30, 0, 0, Math.PI * 2);
+        ctx.ellipse(
+          x + dx, 
+          y + dy, 
+          petalSize * 0.7, 
+          petalSize * 1.2, 
+          angle, 
+          0, 
+          Math.PI * 2
+        );
         ctx.stroke();
       }
 
       // Draw center
       ctx.beginPath();
-      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.arc(x, y, petalSize * 0.5, 0, Math.PI * 2);
       ctx.stroke();
-
-      ctx.restore();
     }
   },
   {
     name: "Butterfly",
     thumbnail: "🦋",
     draw: (ctx, width, height) => {
-      // Clear canvas with white background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
-
-      // Set up drawing style
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-
-      // Calculate size and position
-      const size = Math.min(width, height) * 0.4;
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.scale(size/100, size/100);
+      const size = Math.min(width, height) / 3;
+      const x = width / 2;
+      const y = height / 2;
 
       // Draw wings
+      // Left upper wing
       ctx.beginPath();
-      ctx.moveTo(0, -25);
-      ctx.bezierCurveTo(-25, -50, -50, -25, -25, 0);
-      ctx.bezierCurveTo(-50, 25, -25, 50, 0, 25);
-      ctx.moveTo(0, -25);
-      ctx.bezierCurveTo(25, -50, 50, -25, 25, 0);
-      ctx.bezierCurveTo(50, 25, 25, 50, 0, 25);
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(
+        x - size/2, y - size/2,
+        x - size/2, y - size/4,
+        x, y
+      );
 
-      // Draw body
-      ctx.moveTo(0, -25);
-      ctx.lineTo(0, 25);
+      // Left lower wing
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(
+        x - size/2, y + size/2,
+        x - size/2, y + size/4,
+        x, y
+      );
+
+      // Right upper wing
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(
+        x + size/2, y - size/2,
+        x + size/2, y - size/4,
+        x, y
+      );
+
+      // Right lower wing
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(
+        x + size/2, y + size/2,
+        x + size/2, y + size/4,
+        x, y
+      );
+
       ctx.stroke();
 
-      ctx.restore();
+      // Draw body
+      ctx.beginPath();
+      ctx.moveTo(x, y - size/4);
+      ctx.lineTo(x, y + size/4);
+      ctx.stroke();
     }
   }
 ];

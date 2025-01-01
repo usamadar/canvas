@@ -25,6 +25,14 @@ export default function TemplateGallery() {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
+      // Log canvas dimensions for debugging
+      console.log('Canvas dimensions:', {
+        width: canvas.width,
+        height: canvas.height,
+        clientWidth: canvas.clientWidth,
+        clientHeight: canvas.clientHeight
+      });
+
       // Clear canvas with white background
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
