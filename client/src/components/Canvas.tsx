@@ -1,15 +1,16 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Card } from "./ui/card";
-import { Button } from "./ui/button";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Card } from "../components/ui/card";
+import { TemplateType, drawTemplate } from "../lib/templates";
 
 interface CanvasProps {
   color: string;
   tool: "brush" | "eraser";
   brushSize: number;
+  selectedTemplate: TemplateType | null;
 }
 
 const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
-  ({ color, tool, brushSize }, ref) => {
+  ({ color, tool, brushSize, selectedTemplate }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
@@ -96,6 +97,28 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       }
     };
 
+    useEffect(() => {
+      if (selectedTemplate) {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        if (!canvas || !ctx) return;
+        
+        // Get canvas dimensions
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Draw template in center
+        drawTemplate(ctx, selectedTemplate, centerX, centerY, 100);
+        
+        // Reset template selection
+        setTimeout(() => {
+          const event = new CustomEvent('templateDrawn');
+          window.dispatchEvent(event);
+        }, 100);
+      }
+    }, [selectedTemplate]);
+
     const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();
       setIsDrawing(true);
@@ -133,11 +156,6 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
 
     return (
       <Card className="p-4 bg-white shadow-lg">
-        <div className="mb-4">
-          <Button onClick={clearCanvas} variant="outline">
-            Clear Canvas
-          </Button>
-        </div>
         <canvas
           ref={canvasRef}
           className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none touch-action-none"

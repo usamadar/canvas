@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Canvas from "../components/Canvas";
 import ColorPalette from "../components/ColorPalette";
 import DrawingTools from "../components/DrawingTools";
+import { TemplateType } from "../lib/templates";
 import { Button } from "../components/ui/button";
 import { Save } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
@@ -10,8 +11,26 @@ export default function Home() {
   const [selectedColor, setSelectedColor] = useState("#FF69B4");
   const [selectedTool, setSelectedTool] = useState<"brush" | "eraser">("brush");
   const [brushSize, setBrushSize] = useState(5);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { toast } = useToast();
+
+  const handleClearCanvas = () => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  };
+
+  // Reset template selection after it's drawn
+  useEffect(() => {
+    const handleTemplateDrawn = () => {
+      setSelectedTemplate(null);
+    };
+    window.addEventListener('templateDrawn', handleTemplateDrawn);
+    return () => window.removeEventListener('templateDrawn', handleTemplateDrawn);
+  }, []);
 
   const handleSave = async () => {
     try {
@@ -59,6 +78,9 @@ export default function Home() {
             onToolChange={setSelectedTool}
             brushSize={brushSize}
             onBrushSizeChange={setBrushSize}
+            selectedTemplate={selectedTemplate}
+            onSelectTemplate={setSelectedTemplate}
+            onClearCanvas={handleClearCanvas}
           />
         </div>
 
@@ -68,6 +90,7 @@ export default function Home() {
             color={selectedColor}
             tool={selectedTool}
             brushSize={brushSize}
+            selectedTemplate={selectedTemplate}
           />
 
           <div className="flex justify-end gap-4">
