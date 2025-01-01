@@ -1,60 +1,111 @@
 interface Template {
   name: string;
-  path: string;
+  draw: (ctx: CanvasRenderingContext2D, width: number, height: number) => void;
   thumbnail: string;
 }
 
 export const templates: Template[] = [
   {
     name: "Heart",
-    path: "M 200,300 C 150,250 50,200 50,125 C 50,75 100,50 150,75 C 175,90 200,150 200,150 C 200,150 225,90 250,75 C 300,50 350,75 350,125 C 350,200 250,250 200,300 Z",
-    thumbnail: "💖"
+    thumbnail: "💖",
+    draw: (ctx, width, height) => {
+      const scale = Math.min(width, height) * 0.8;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.scale(scale/200, scale/200);
+
+      ctx.beginPath();
+      ctx.moveTo(0, 30);
+      ctx.bezierCurveTo(-50, -30, -90, -30, -90, 20);
+      ctx.bezierCurveTo(-90, 80, -30, 100, 0, 120);
+      ctx.bezierCurveTo(30, 100, 90, 80, 90, 20);
+      ctx.bezierCurveTo(90, -30, 50, -30, 0, 30);
+      ctx.stroke();
+      ctx.restore();
+    }
   },
   {
     name: "Star",
-    path: "M 200,50 L 230,150 L 330,150 L 250,200 L 280,300 L 200,240 L 120,300 L 150,200 L 70,150 L 170,150 Z",
-    thumbnail: "⭐"
+    thumbnail: "⭐",
+    draw: (ctx, width, height) => {
+      const scale = Math.min(width, height) * 0.8;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.scale(scale/200, scale/200);
+
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        ctx.lineTo(Math.cos((i * 4 * Math.PI) / 5) * 100,
+                  Math.sin((i * 4 * Math.PI) / 5) * 100);
+        ctx.lineTo(Math.cos(((i * 4 + 2) * Math.PI) / 5) * 40,
+                  Math.sin(((i * 4 + 2) * Math.PI) / 5) * 40);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
   },
   {
     name: "Flower",
-    path: "M 200,150 C 180,100 120,100 120,150 C 120,200 180,200 200,150 M 200,150 C 220,100 280,100 280,150 C 280,200 220,200 200,150 M 200,250 C 180,200 120,200 120,250 C 120,300 180,300 200,250 M 200,250 C 220,200 280,200 280,250 C 280,300 220,300 200,250",
-    thumbnail: "🌸"
+    thumbnail: "🌸",
+    draw: (ctx, width, height) => {
+      const scale = Math.min(width, height) * 0.8;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.scale(scale/200, scale/200);
+
+      // Draw petals
+      for (let i = 0; i < 6; i++) {
+        ctx.rotate(Math.PI / 3);
+        ctx.beginPath();
+        ctx.ellipse(0, -50, 30, 60, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Draw center
+      ctx.beginPath();
+      ctx.arc(0, 0, 20, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
   },
   {
     name: "Butterfly",
-    path: "M 200,100 C 150,50 100,50 50,100 C 0,150 0,200 50,250 C 100,300 150,300 200,250 M 200,100 C 250,50 300,50 350,100 C 400,150 400,200 350,250 C 300,300 250,300 200,250 M 200,100 L 200,300",
-    thumbnail: "🦋"
+    thumbnail: "🦋",
+    draw: (ctx, width, height) => {
+      const scale = Math.min(width, height) * 0.8;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.scale(scale/200, scale/200);
+
+      // Draw wings
+      ctx.beginPath();
+      ctx.moveTo(0, -50);
+      ctx.bezierCurveTo(-50, -100, -100, -50, -50, 0);
+      ctx.bezierCurveTo(-100, 50, -50, 100, 0, 50);
+      ctx.moveTo(0, -50);
+      ctx.bezierCurveTo(50, -100, 100, -50, 50, 0);
+      ctx.bezierCurveTo(100, 50, 50, 100, 0, 50);
+
+      // Draw body
+      ctx.moveTo(0, -50);
+      ctx.lineTo(0, 50);
+      ctx.stroke();
+
+      ctx.restore();
+    }
   }
 ];
-
-export function drawTemplateOnCanvas(canvas: HTMLCanvasElement, path: string): void {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  // Clear canvas with white background
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Set up the path styling
-  ctx.strokeStyle = 'black';
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  // Create a new path from the SVG path data
-  const templatePath = new Path2D(path);
-
-  // Scale and center the path
-  const scale = 0.8;
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.scale(scale, scale);
-  ctx.translate(-200, -200); // Center based on viewBox
-
-  // Draw the path
-  ctx.stroke(templatePath);
-  ctx.restore();
-}

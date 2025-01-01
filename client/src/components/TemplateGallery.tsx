@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { templates, drawTemplateOnCanvas } from "@/lib/templates";
+import { templates } from "@/lib/templates";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -8,7 +8,7 @@ export default function TemplateGallery() {
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
-  const loadTemplate = async (template: { path: string; name: string }, index: number) => {
+  const loadTemplate = (template: (typeof templates)[0], index: number) => {
     const canvas = document.querySelector("canvas");
     if (!canvas) {
       toast({
@@ -22,7 +22,17 @@ export default function TemplateGallery() {
     setLoadingTemplate(index);
 
     try {
-      drawTemplateOnCanvas(canvas, template.path);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not get canvas context");
+
+      // Clear canvas with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the template
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      template.draw(ctx, canvas.width, canvas.height);
 
       toast({
         title: "Template Loaded",
