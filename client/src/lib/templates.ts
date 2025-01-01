@@ -9,14 +9,22 @@ export const templates: Template[] = [
     name: "Heart",
     thumbnail: "💖",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height);
-      const scale = size * 0.6; // Increased from 0.8
+      // Clear canvas with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+
+      // Set up drawing style
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+
+      // Calculate size and position
+      const size = Math.min(width, height) * 0.4;
       const centerX = width / 2;
       const centerY = height / 2;
 
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.scale(scale/100, scale/100); // Changed from 200 to 100
+      ctx.scale(size/100, size/100);
 
       ctx.beginPath();
       ctx.moveTo(0, 20);
@@ -32,21 +40,33 @@ export const templates: Template[] = [
     name: "Star",
     thumbnail: "⭐",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height);
-      const scale = size * 0.6;
+      // Clear canvas with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+
+      // Set up drawing style
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+
+      // Calculate size and position
+      const size = Math.min(width, height) * 0.4;
       const centerX = width / 2;
       const centerY = height / 2;
 
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.scale(scale/100, scale/100);
+      ctx.scale(size/100, size/100);
 
       ctx.beginPath();
       for (let i = 0; i < 5; i++) {
-        ctx.lineTo(Math.cos((i * 4 * Math.PI) / 5 - Math.PI/2) * 50,
-                  Math.sin((i * 4 * Math.PI) / 5 - Math.PI/2) * 50);
-        ctx.lineTo(Math.cos(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20,
-                  Math.sin(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20);
+        ctx.lineTo(
+          Math.cos((i * 4 * Math.PI) / 5 - Math.PI/2) * 50,
+          Math.sin((i * 4 * Math.PI) / 5 - Math.PI/2) * 50
+        );
+        ctx.lineTo(
+          Math.cos(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20,
+          Math.sin(((i * 4 + 2) * Math.PI) / 5 - Math.PI/2) * 20
+        );
       }
       ctx.closePath();
       ctx.stroke();
@@ -57,14 +77,22 @@ export const templates: Template[] = [
     name: "Flower",
     thumbnail: "🌸",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height);
-      const scale = size * 0.6;
+      // Clear canvas with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+
+      // Set up drawing style
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+
+      // Calculate size and position
+      const size = Math.min(width, height) * 0.4;
       const centerX = width / 2;
       const centerY = height / 2;
 
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.scale(scale/100, scale/100);
+      ctx.scale(size/100, size/100);
 
       // Draw petals
       for (let i = 0; i < 6; i++) {
@@ -86,14 +114,22 @@ export const templates: Template[] = [
     name: "Butterfly",
     thumbnail: "🦋",
     draw: (ctx, width, height) => {
-      const size = Math.min(width, height);
-      const scale = size * 0.6;
+      // Clear canvas with white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+
+      // Set up drawing style
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+
+      // Calculate size and position
+      const size = Math.min(width, height) * 0.4;
       const centerX = width / 2;
       const centerY = height / 2;
 
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.scale(scale/100, scale/100);
+      ctx.scale(size/100, size/100);
 
       // Draw wings
       ctx.beginPath();
