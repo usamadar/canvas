@@ -1,38 +1,41 @@
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/templates";
-import { Image } from "lucide-react";
+import { loadImageToCanvas } from "@/lib/drawingUtils";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TemplateGallery() {
-  const loadTemplate = (imageUrl: string) => {
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+  const { toast } = useToast();
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Calculate scaling to fit the template while maintaining aspect ratio
-      const scale = Math.min(
-        canvas.width / img.width,
-        canvas.height / img.height
-      ) * 0.8;
-      
-      const x = (canvas.width - img.width * scale) / 2;
-      const y = (canvas.height - img.height * scale) / 2;
-      
-      ctx.drawImage(
-        img,
-        x,
-        y,
-        img.width * scale,
-        img.height * scale
-      );
-    };
-    img.src = imageUrl;
+  const loadTemplate = async (imageUrl: string, templateName: string) => {
+    const canvas = document.querySelector("canvas");
+    if (!canvas) {
+      toast({
+        title: "Error",
+        description: "Canvas not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await loadImageToCanvas(canvas, imageUrl, {
+        scale: 0.8,
+        preserveAspectRatio: true,
+        centerImage: true,
+      });
+
+      toast({
+        title: "Template Loaded",
+        description: `${templateName} template is ready for coloring!`,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load template. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -42,14 +45,15 @@ export default function TemplateGallery() {
         {templates.map((template, index) => (
           <button
             key={index}
-            className="p-2 rounded-lg hover:bg-pink-100 transition-colors"
-            onClick={() => loadTemplate(template.url)}
+            className="p-2 rounded-lg hover:bg-pink-100 transition-colors active:bg-pink-200"
+            onClick={() => loadTemplate(template.url, template.name)}
           >
             <div className="relative aspect-square bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
               <img
                 src={template.thumbnail}
                 alt={template.name}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
             <span className="text-xs text-gray-600 mt-1 block">
