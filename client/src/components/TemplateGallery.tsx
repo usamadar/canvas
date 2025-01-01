@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { templates } from "@/lib/templates";
+import { templates, createSVGTemplate } from "@/lib/templates";
 import { loadImageToCanvas } from "@/lib/drawingUtils";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -9,7 +9,7 @@ export default function TemplateGallery() {
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
-  const loadTemplate = async (imageUrl: string, templateName: string, index: number) => {
+  const loadTemplate = async (template: { url: string; name: string }, index: number) => {
     const canvas = document.querySelector("canvas");
     if (!canvas) {
       toast({
@@ -23,16 +23,10 @@ export default function TemplateGallery() {
     setLoadingTemplate(index);
 
     try {
-      // Pre-load image to check if it exists and is accessible
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = imageUrl;
-      });
+      // Convert SVG content to data URL
+      const dataUrl = createSVGTemplate(template.url);
 
-      await loadImageToCanvas(canvas, imageUrl, {
+      await loadImageToCanvas(canvas, dataUrl, {
         scale: 0.8,
         preserveAspectRatio: true,
         centerImage: true,
@@ -40,7 +34,7 @@ export default function TemplateGallery() {
 
       toast({
         title: "Template Loaded",
-        description: `${templateName} template is ready for coloring!`,
+        description: `${template.name} template is ready for coloring!`,
         duration: 2000,
       });
     } catch (error) {
@@ -63,7 +57,7 @@ export default function TemplateGallery() {
           <button
             key={index}
             className="p-2 rounded-lg hover:bg-pink-100 transition-colors active:bg-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => loadTemplate(template.url, template.name, index)}
+            onClick={() => loadTemplate(template, index)}
             disabled={loadingTemplate !== null}
           >
             <div className="relative aspect-square bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
@@ -72,12 +66,9 @@ export default function TemplateGallery() {
                   <Loader2 className="w-6 h-6 animate-spin text-pink-600" />
                 </div>
               ) : (
-                <img
-                  src={template.thumbnail}
-                  alt={template.name}
-                  className="w-full h-full object-contain"
-                  loading="lazy"
-                />
+                <div className="w-full h-full flex items-center justify-center text-4xl">
+                  {template.thumbnail}
+                </div>
               )}
             </div>
             <span className="text-xs text-gray-600 mt-1 block">
