@@ -57,45 +57,54 @@ export function loadImageToCanvas(
     img.crossOrigin = 'anonymous'; // Enable CORS
 
     img.onload = () => {
-      // Get the device pixel ratio
-      const dpr = window.devicePixelRatio || 1;
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
+      try {
+        // Get the device pixel ratio
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
 
-      // Set canvas dimensions accounting for device pixel ratio
-      canvas.width = displayWidth * dpr;
-      canvas.height = displayHeight * dpr;
+        // Set canvas dimensions accounting for device pixel ratio
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
 
-      // Scale context for retina display
-      ctx.scale(dpr, dpr);
+        // Scale context for retina display
+        ctx.scale(dpr, dpr);
 
-      // Clear canvas and set white background
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, displayWidth, displayHeight);
+        // Clear canvas and set white background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // Calculate dimensions while preserving aspect ratio
-      const scale = options.scale || 0.8;
-      const aspectRatio = img.width / img.height;
+        // Calculate dimensions while preserving aspect ratio
+        const scale = options.scale || 0.8;
 
-      let drawWidth = displayWidth * scale;
-      let drawHeight = drawWidth / aspectRatio;
+        // For SVG content, use the viewBox dimensions
+        const viewBoxWidth = 400; // matches our SVG viewBox
+        const viewBoxHeight = 400;
+        const aspectRatio = viewBoxWidth / viewBoxHeight;
 
-      // Adjust if height is too large
-      if (drawHeight > displayHeight * scale) {
-        drawHeight = displayHeight * scale;
-        drawWidth = drawHeight * aspectRatio;
+        let drawWidth = displayWidth * scale;
+        let drawHeight = drawWidth / aspectRatio;
+
+        // Adjust if height is too large
+        if (drawHeight > displayHeight * scale) {
+          drawHeight = displayHeight * scale;
+          drawWidth = drawHeight * aspectRatio;
+        }
+
+        // Calculate position to center the image
+        const x = (displayWidth - drawWidth) / 2;
+        const y = (displayHeight - drawHeight) / 2;
+
+        // Draw the image
+        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+        resolve();
+      } catch (error) {
+        reject(error);
       }
-
-      // Calculate position to center the image
-      const x = (displayWidth - drawWidth) / 2;
-      const y = (displayHeight - drawHeight) / 2;
-
-      // Draw the image
-      ctx.drawImage(img, x, y, drawWidth, drawHeight);
-      resolve();
     };
 
-    img.onerror = () => {
+    img.onerror = (error) => {
+      console.error('Image loading error:', error);
       reject(new Error('Failed to load image'));
     };
 

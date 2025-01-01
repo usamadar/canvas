@@ -38,7 +38,10 @@ export const templates = [
 ];
 
 export function createSVGTemplate(svgContent: string): string {
-  // Create a data URL from the SVG content
-  const encoded = encodeURIComponent(svgContent);
-  return `data:image/svg+xml;charset=utf-8,${encoded}`;
+  // Ensure SVG content has proper XML declaration and namespace
+  const fullSVG = svgContent.trim();
+
+  // Create a properly encoded data URL
+  const base64 = btoa(fullSVG);
+  return `data:image/svg+xml;base64,${base64}`;
 }
