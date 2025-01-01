@@ -269,7 +269,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
               cursor: tool === 'move' ? 'move' :
                 tool === 'brush' ? 
                   `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='black'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto` :
-                  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white' stroke='black' stroke-width='2'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`
+                  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black' stroke-width='4'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`
             }}
             onMouseDown={startDrawing}
             onMouseMove={draw}
