@@ -1,26 +1,30 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Canvas from "@/components/Canvas";
 import ColorPalette from "@/components/ColorPalette";
 import DrawingTools from "@/components/DrawingTools";
 import TemplateGallery from "@/components/TemplateGallery";
 import { Button } from "@/components/ui/button";
-import { Save, Image } from "lucide-react";
+import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [selectedColor, setSelectedColor] = useState("#FF69B4");
   const [selectedTool, setSelectedTool] = useState<"brush" | "eraser">("brush");
   const [brushSize, setBrushSize] = useState(5);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { toast } = useToast();
-  
-  const handleSave = async (canvas: HTMLCanvasElement) => {
+
+  const handleSave = async () => {
     try {
-      const dataUrl = canvas.toDataURL("image/png");
+      if (!canvasRef.current) {
+        throw new Error("Canvas not found");
+      }
+      const dataUrl = canvasRef.current.toDataURL("image/png");
       const link = document.createElement("a");
       link.download = "my-drawing.png";
       link.href = dataUrl;
       link.click();
-      
+
       toast({
         title: "Saved!",
         description: "Your artwork has been saved successfully!",
@@ -50,7 +54,7 @@ export default function Home() {
             selectedColor={selectedColor}
             onColorChange={setSelectedColor}
           />
-          
+
           <DrawingTools
             selectedTool={selectedTool}
             onToolChange={setSelectedTool}
@@ -58,21 +62,22 @@ export default function Home() {
             onBrushSizeChange={setBrushSize}
           />
 
-          <TemplateGallery />
+          <TemplateGallery canvasRef={canvasRef} />
         </div>
 
         <div className="space-y-4">
           <Canvas
+            ref={canvasRef}
             color={selectedColor}
             tool={selectedTool}
             brushSize={brushSize}
           />
-          
+
           <div className="flex justify-end gap-4">
             <Button
               variant="outline"
               className="bg-white"
-              onClick={() => handleSave(document.querySelector("canvas")!)}
+              onClick={handleSave}
             >
               <Save className="w-4 h-4 mr-2" />
               Save Artwork

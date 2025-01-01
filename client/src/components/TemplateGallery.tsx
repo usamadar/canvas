@@ -1,16 +1,19 @@
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/templates";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, RefObject } from "react";
 import { Loader2 } from "lucide-react";
 
-export default function TemplateGallery() {
+interface TemplateGalleryProps {
+  canvasRef: RefObject<HTMLCanvasElement>;
+}
+
+export default function TemplateGallery({ canvasRef }: TemplateGalleryProps) {
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<number | null>(null);
 
   const loadTemplate = async (template: (typeof templates)[0], index: number) => {
-    const canvas = document.querySelector("canvas");
-    if (!canvas) {
+    if (!canvasRef.current) {
       toast({
         title: "Error",
         description: "Canvas not found",
@@ -22,6 +25,7 @@ export default function TemplateGallery() {
     setLoadingTemplate(index);
 
     try {
+      const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 

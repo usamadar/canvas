@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 
 interface CanvasProps {
@@ -7,116 +7,125 @@ interface CanvasProps {
   brushSize: number;
 }
 
-export default function Canvas({ color, tool, brushSize }: CanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
+const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
+  ({ color, tool, brushSize }, ref) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
 
-  // Initialize canvas with correct size
-  const initializeCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    // Forward the canvas ref
+    useImperativeHandle(ref, () => canvasRef.current!, []);
 
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
+    // Initialize canvas with correct size
+    const initializeCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    // Set display size
-    canvas.style.width = `${rect.width}px`;
-    canvas.style.height = `${rect.height}px`;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
 
-    // Set actual size in memory
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+      // Set display size
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
 
-    // Get context
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      // Set actual size in memory
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
 
-    // Scale all drawing operations by dpr
-    ctx.scale(dpr, dpr);
+      // Get context
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    // Set initial white background
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, rect.width, rect.height);
-  };
+      // Scale all drawing operations by dpr
+      ctx.scale(dpr, dpr);
 
-  useEffect(() => {
-    initializeCanvas();
-    window.addEventListener('resize', initializeCanvas);
-    return () => window.removeEventListener('resize', initializeCanvas);
-  }, []);
+      // Set initial white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+    };
 
-  const getEventPosition = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+    useEffect(() => {
+      initializeCanvas();
+      window.addEventListener('resize', initializeCanvas);
+      return () => window.removeEventListener('resize', initializeCanvas);
+    }, []);
 
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+    const getEventPosition = (e: React.MouseEvent | React.TouchEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
 
-    if ('touches' in e) {
-      const touch = e.touches[0];
-      return {
-        x: (touch.clientX - rect.left),
-        y: (touch.clientY - rect.top)
-      };
-    } else {
-      return {
-        x: (e.clientX - rect.left),
-        y: (e.clientY - rect.top)
-      };
-    }
-  };
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
 
-  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    setIsDrawing(true);
-    const pos = getEventPosition(e);
-    setLastPos(pos);
-  };
+      if ('touches' in e) {
+        const touch = e.touches[0];
+        return {
+          x: (touch.clientX - rect.left),
+          y: (touch.clientY - rect.top)
+        };
+      } else {
+        return {
+          x: (e.clientX - rect.left),
+          y: (e.clientY - rect.top)
+        };
+      }
+    };
 
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    if (!isDrawing || !lastPos) return;
+    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      setIsDrawing(true);
+      const pos = getEventPosition(e);
+      setLastPos(pos);
+    };
 
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      if (!isDrawing || !lastPos) return;
 
-    const currentPos = getEventPosition(e);
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!canvas || !ctx) return;
 
-    ctx.beginPath();
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.lineWidth = brushSize;
-    ctx.strokeStyle = tool === "eraser" ? "white" : color;
+      const currentPos = getEventPosition(e);
 
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(currentPos.x, currentPos.y);
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = tool === "eraser" ? "white" : color;
 
-    setLastPos(currentPos);
-  };
+      ctx.moveTo(lastPos.x, lastPos.y);
+      ctx.lineTo(currentPos.x, currentPos.y);
+      ctx.stroke();
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-    setLastPos(null);
-  };
+      setLastPos(currentPos);
+    };
 
-  return (
-    <Card className="p-4 bg-white shadow-lg">
-      <canvas
-        ref={canvasRef}
-        className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none"
-        style={{ touchAction: 'none' }}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseOut={stopDrawing}
-        onTouchStart={startDrawing}
-        onTouchMove={draw}
-        onTouchEnd={stopDrawing}
-        onTouchCancel={stopDrawing}
-      />
-    </Card>
-  );
-}
+    const stopDrawing = () => {
+      setIsDrawing(false);
+      setLastPos(null);
+    };
+
+    return (
+      <Card className="p-4 bg-white shadow-lg">
+        <canvas
+          ref={canvasRef}
+          className="w-full aspect-[4/3] border border-gray-200 rounded-lg cursor-crosshair touch-none"
+          style={{ touchAction: 'none' }}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseOut={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          onTouchCancel={stopDrawing}
+        />
+      </Card>
+    );
+  }
+);
+
+Canvas.displayName = "Canvas";
+
+export default Canvas;
