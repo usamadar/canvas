@@ -14,6 +14,7 @@ export default function TemplateGallery({ canvasRef }: TemplateGalleryProps) {
 
   const loadTemplate = async (template: (typeof templates)[0], index: number) => {
     if (!canvasRef.current) {
+      console.error('Canvas ref is null');
       toast({
         title: "Error",
         description: "Canvas not found",
@@ -29,31 +30,32 @@ export default function TemplateGallery({ canvasRef }: TemplateGalleryProps) {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
-      // Reset any transformations
+      // Get canvas dimensions
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+
+      console.log('Canvas setup:', {
+        dpr,
+        rect,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        displayWidth: rect.width,
+        displayHeight: rect.height
+      });
+
+      // Reset canvas transform
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-      // Get actual drawing dimensions
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-
-      // Clear the canvas with white background
+      // Clear canvas
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
-      // Set drawing style
+      // Set up drawing style
       ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * dpr; // Scale line width for retina displays
 
-      // Debug log
-      console.log('Drawing template', {
-        template: template.name,
-        dimensions: rect,
-        dpr,
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height
-      });
-
-      // Draw template with client dimensions
+      // Draw template
+      console.log('Drawing template:', template.name);
       template.draw(ctx, rect.width, rect.height);
 
       toast({
@@ -62,7 +64,7 @@ export default function TemplateGallery({ canvasRef }: TemplateGalleryProps) {
         duration: 2000,
       });
     } catch (error) {
-      console.error("Failed to load template:", error);
+      console.error("Template loading error:", error);
       toast({
         title: "Error",
         description: "Failed to load template. Please try again.",

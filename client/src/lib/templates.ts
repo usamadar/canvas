@@ -13,6 +13,8 @@ export const templates: Template[] = [
       const centerY = height / 2;
       const scale = Math.min(width, height) * 0.3;
 
+      console.log('Drawing heart:', { centerX, centerY, scale, width, height });
+
       ctx.beginPath();
       ctx.moveTo(centerX, centerY + scale * 0.3);
 
@@ -40,6 +42,8 @@ export const templates: Template[] = [
       const centerX = width / 2;
       const centerY = height / 2;
       const radius = Math.min(width, height) * 0.15;
+
+      console.log('Drawing star:', { centerX, centerY, radius, width, height });
 
       ctx.beginPath();
       for (let i = 0; i < 5; i++) {
@@ -73,6 +77,8 @@ export const templates: Template[] = [
       const centerY = height / 2;
       const radius = Math.min(width, height) * 0.15;
 
+      console.log('Drawing flower:', { centerX, centerY, radius, width, height });
+
       // Draw petals
       for (let i = 0; i < 6; i++) {
         const angle = (i * Math.PI) / 3;
@@ -102,6 +108,8 @@ export const templates: Template[] = [
       const centerX = width / 2;
       const centerY = height / 2;
       const scale = Math.min(width, height) * 0.2;
+
+      console.log('Drawing butterfly:', { centerX, centerY, scale, width, height });
 
       // Left wing
       ctx.beginPath();

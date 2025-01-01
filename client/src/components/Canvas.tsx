@@ -21,19 +21,28 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       const canvas = canvasRef.current;
       if (!canvas) return;
 
+      // Get the device pixel ratio
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
 
-      // Set display size
+      // Log canvas initialization
+      console.log('Initializing canvas:', {
+        dpr,
+        rect,
+        clientWidth: canvas.clientWidth,
+        clientHeight: canvas.clientHeight
+      });
+
+      // Set display size (css pixels)
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
 
-      // Set actual size in memory
+      // Set actual size in memory (scaled for retina)
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
 
-      // Get context
-      const ctx = canvas.getContext('2d');
+      // Get context and scale for retina
+      const ctx = canvas.getContext('2d', { alpha: false });
       if (!ctx) return;
 
       // Scale all drawing operations by dpr
@@ -42,6 +51,13 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       // Set initial white background
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, rect.width, rect.height);
+
+      console.log('Canvas initialized:', {
+        width: canvas.width,
+        height: canvas.height,
+        displayWidth: rect.width,
+        displayHeight: rect.height
+      });
     };
 
     useEffect(() => {
@@ -55,7 +71,6 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       if (!canvas) return { x: 0, y: 0 };
 
       const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
 
       if ('touches' in e) {
         const touch = e.touches[0];
