@@ -1,3 +1,4 @@
+import React from "react";
 import { Card } from "@/components/ui/card";
 
 interface ColorPaletteProps {
@@ -22,13 +23,13 @@ const COLORS = [
 
 export default function ColorPalette({ selectedColor, onColorChange }: ColorPaletteProps) {
   return (
-    <Card className="p-4">
-      <h2 className="text-lg font-semibold mb-3 text-pink-600">Colors</h2>
+    <Card className="p-3 sm:p-4">
+      <h2 className="text-base sm:text-lg font-semibold mb-2.5 text-pink-600">Colors</h2>
       <div className="grid grid-cols-4 gap-2">
         {COLORS.map((color) => (
           <button
             key={color}
-            className={`w-12 h-12 rounded-full border-4 transition-transform hover:scale-110 ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-transform hover:scale-110 ${
               selectedColor === color ? "border-pink-400" : "border-transparent"
             }`}
             style={{ backgroundColor: color }}

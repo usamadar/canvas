@@ -62,18 +62,18 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-pink-50 p-2 sm:p-4">
-      <div className="max-w-6xl mx-auto space-y-2 sm:space-y-4">
+    <div className="min-h-screen bg-pink-50 px-2 py-2 sm:p-4">
+      <div className="max-w-6xl mx-auto space-y-2">
         <header className="text-center">
           <div className="flex items-center justify-center gap-2">
-            <span className="text-2xl sm:text-3xl">🎨</span>
-            <h1 className="text-2xl sm:text-3xl font-bold text-pink-500">Little Artist Studio</h1>
+            <span className="text-xl sm:text-2xl">🎨</span>
+            <h1 className="text-xl sm:text-2xl font-bold text-pink-500">Little Artist Studio</h1>
           </div>
-          <p className="text-pink-400 mt-1">Let's create something beautiful!</p>
+          <p className="text-pink-400 text-sm mt-0.5">Let's create something beautiful!</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-2 sm:gap-4">
-          <div className="flex flex-col gap-2 sm:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-2">
+          <div className="flex flex-col gap-2">
             <ColorPalette
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}
@@ -89,7 +89,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 sm:gap-4">
+          <div className="flex flex-col gap-2">
             <Canvas
               ref={canvasRef}
               color={selectedColor}
@@ -100,7 +100,7 @@ export default function Home() {
             
             <div className="flex justify-end">
               <button
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-pink-600 bg-white rounded-lg shadow hover:bg-pink-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-pink-600 bg-white rounded-lg shadow hover:bg-pink-50"
                 onClick={handleSave}
               >
                 <Save className="w-4 h-4" />

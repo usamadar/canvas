@@ -48,15 +48,15 @@ export default function DrawingTools({
   }, [selectedCategory]);
 
   return (
-    <div className="flex flex-col gap-2 sm:gap-4">
+    <div className="flex flex-col gap-2">
       {/* Main Tools Card */}
-      <Card className="p-3 sm:p-4">
-        <h2 className="text-lg font-semibold mb-2 sm:mb-3 text-pink-600">Tools</h2>
+      <Card className="p-2 sm:p-3">
+        <h2 className="text-base sm:text-lg font-semibold mb-2 text-pink-600">Tools</h2>
         
-        <div className="flex flex-col gap-3 sm:gap-4">
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-1.5">
             <button
-              className={`flex-1 p-2 sm:p-3 rounded-lg border-2 transition-colors ${
+              className={`flex-1 p-1.5 sm:p-2 rounded-lg border-2 transition-colors ${
                 selectedTool === "brush"
                   ? "bg-pink-100 border-pink-400"
                   : "border-transparent hover:bg-gray-100"
@@ -64,11 +64,11 @@ export default function DrawingTools({
               onClick={() => onToolChange("brush")}
               aria-label="Brush tool"
             >
-              <Pencil className="w-5 h-5 sm:w-6 sm:h-6 mx-auto" />
+              <Pencil className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
             </button>
             
             <button
-              className={`flex-1 p-2 sm:p-3 rounded-lg border-2 transition-colors ${
+              className={`flex-1 p-1.5 sm:p-2 rounded-lg border-2 transition-colors ${
                 selectedTool === "eraser"
                   ? "bg-pink-100 border-pink-400"
                   : "border-transparent hover:bg-gray-100"
@@ -76,11 +76,11 @@ export default function DrawingTools({
               onClick={() => onToolChange("eraser")}
               aria-label="Eraser tool"
             >
-              <Eraser className="w-5 h-5 sm:w-6 sm:h-6 mx-auto" />
+              <Eraser className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
             </button>
 
             <button
-              className={`flex-1 p-2 sm:p-3 rounded-lg border-2 transition-colors ${
+              className={`flex-1 p-1.5 sm:p-2 rounded-lg border-2 transition-colors ${
                 selectedTool === "move"
                   ? "bg-pink-100 border-pink-400"
                   : "border-transparent hover:bg-gray-100"
@@ -88,12 +88,12 @@ export default function DrawingTools({
               onClick={() => onToolChange("move")}
               aria-label="Move tool"
             >
-              <Move className="w-5 h-5 sm:w-6 sm:h-6 mx-auto" />
+              <Move className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
             </button>
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <label className="text-sm text-gray-600">Brush Size</label>
+          <div className="space-y-1">
+            <label className="text-xs sm:text-sm text-gray-600">Brush Size</label>
             <Slider
               min={1}
               max={20}
@@ -105,26 +105,26 @@ export default function DrawingTools({
           </div>
 
           <button
-            className="flex items-center justify-center w-full gap-2 p-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100"
+            className="flex items-center justify-center w-full gap-1.5 p-1.5 text-xs sm:text-sm text-gray-600 rounded-lg hover:bg-gray-100"
             onClick={onClearCanvas}
             aria-label="Clear canvas"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
             Clear Canvas
           </button>
         </div>
       </Card>
 
       {/* Templates Card */}
-      <Card className="p-3 sm:p-4">
-        <h2 className="text-lg font-semibold mb-2 sm:mb-3 text-pink-600">Templates</h2>
+      <Card className="p-2 sm:p-3">
+        <h2 className="text-base sm:text-lg font-semibold mb-2 text-pink-600">Templates</h2>
         
         {/* Category Tabs */}
-        <div className="flex overflow-x-auto scrollbar-hide mb-3 pb-2 -mx-1 px-1">
+        <div className="flex overflow-x-auto scrollbar-hide mb-2 pb-1.5 -mx-1 px-1">
           {categories.map((category) => (
             <button
               key={category}
-              className={`shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors mr-2 ${
+              className={`shrink-0 px-1.5 py-0.5 rounded-lg text-[10px] sm:text-xs font-medium transition-colors mr-1 ${
                 selectedCategory === category
                   ? "bg-pink-100 text-pink-600"
                   : "text-gray-600 hover:bg-gray-100"
@@ -137,11 +137,11 @@ export default function DrawingTools({
         </div>
 
         {/* Templates Grid */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1.5">
           {categoryTemplates.map((template) => (
             <button
               key={template.type}
-              className={`aspect-square flex items-center justify-center p-2 sm:p-3 rounded-lg border-2 transition-colors ${
+              className={`aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg border-2 transition-colors ${
                 selectedTemplate === template.type
                   ? "bg-pink-100 border-pink-400"
                   : "border-transparent hover:bg-gray-100"

@@ -14,6 +14,9 @@ interface Template {
   x: number;
   y: number;
   size: number;
+  originalX?: number;  // Store original positions and size
+  originalY?: number;
+  originalSize?: number;
 }
 
 interface CanvasRef {
@@ -68,31 +71,106 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
 
       // Get the device pixel ratio
       const dpr = window.devicePixelRatio || 1;
-      const rect = drawingCanvas.getBoundingClientRect();
 
-      // Set up drawing canvas
-      drawingCanvas.style.width = `${rect.width}px`;
-      drawingCanvas.style.height = `${rect.height}px`;
-      drawingCanvas.width = rect.width * dpr;
-      drawingCanvas.height = rect.height * dpr;
+      // Get the container size
+      const container = drawingCanvas.parentElement;
+      if (!container) return;
 
+      // Calculate dimensions maintaining aspect ratio
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+
+      // Store the current canvas content before resizing
+      const tempDrawingCanvas = document.createElement('canvas');
+      const tempTemplateCanvas = document.createElement('canvas');
+      
+      // Set temp canvases to current canvas size
+      tempDrawingCanvas.width = drawingCanvas.width;
+      tempDrawingCanvas.height = drawingCanvas.height;
+      tempTemplateCanvas.width = templateCanvas.width;
+      tempTemplateCanvas.height = templateCanvas.height;
+      
+      const tempDrawingCtx = tempDrawingCanvas.getContext('2d');
+      const tempTemplateCtx = tempTemplateCanvas.getContext('2d');
+      
+      if (tempDrawingCtx && tempTemplateCtx) {
+        // Save the current transforms
+        tempDrawingCtx.setTransform(1, 0, 0, 1, 0, 0);
+        tempTemplateCtx.setTransform(1, 0, 0, 1, 0, 0);
+        
+        // Copy the entire canvas state
+        tempDrawingCtx.drawImage(drawingCanvas, 0, 0);
+        tempTemplateCtx.drawImage(templateCanvas, 0, 0);
+      }
+
+      // Set new canvas dimensions
+      drawingCanvas.style.width = `${containerWidth}px`;
+      drawingCanvas.style.height = `${containerHeight}px`;
+      drawingCanvas.width = Math.floor(containerWidth * dpr);
+      drawingCanvas.height = Math.floor(containerHeight * dpr);
+
+      templateCanvas.style.width = `${containerWidth}px`;
+      templateCanvas.style.height = `${containerHeight}px`;
+      templateCanvas.width = Math.floor(containerWidth * dpr);
+      templateCanvas.height = Math.floor(containerHeight * dpr);
+
+      // Set up drawing context
       const drawingCtx = drawingCanvas.getContext('2d', { alpha: false });
       if (drawingCtx) {
-        drawingCtx.scale(dpr, dpr);
+        // Reset transform and fill with white
+        drawingCtx.setTransform(1, 0, 0, 1, 0, 0);
         drawingCtx.fillStyle = "white";
-        drawingCtx.fillRect(0, 0, rect.width, rect.height);
+        drawingCtx.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+
+        // Apply device pixel ratio scale
+        drawingCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // Only restore if we had previous content
+        if (tempDrawingCanvas.width > 0 && tempDrawingCanvas.height > 0) {
+          drawingCtx.drawImage(
+            tempDrawingCanvas,
+            0, 0, tempDrawingCanvas.width, tempDrawingCanvas.height,
+            0, 0, containerWidth, containerHeight
+          );
+        }
       }
 
-      // Set up template canvas with same dimensions
-      templateCanvas.style.width = `${rect.width}px`;
-      templateCanvas.style.height = `${rect.height}px`;
-      templateCanvas.width = rect.width * dpr;
-      templateCanvas.height = rect.height * dpr;
-
+      // Set up template context
       const templateCtx = templateCanvas.getContext('2d');
       if (templateCtx) {
-        templateCtx.scale(dpr, dpr);
+        templateCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
+
+      // Update template positions based on new container size
+      setTemplates(prev => prev.map(template => {
+        if (!template.originalSize || !template.originalX || !template.originalY) {
+          return template;
+        }
+
+        // Calculate the base dimension for the new size
+        const baseDimension = Math.min(containerWidth, containerHeight);
+        
+        // Calculate position ratios relative to container dimensions
+        const xRatio = template.originalX / template.originalSize;
+        const yRatio = template.originalY / template.originalSize;
+        
+        // Calculate new size based on current container
+        const newSize = baseDimension * (template.originalSize / Math.min(containerWidth, containerHeight));
+        
+        // Calculate new positions maintaining relative position
+        const newX = containerWidth * (template.originalX / containerWidth);
+        const newY = containerHeight * (template.originalY / containerHeight);
+
+        return {
+          ...template,
+          x: newX,
+          y: newY,
+          size: newSize,
+          originalX: template.originalX,
+          originalY: template.originalY,
+          originalSize: template.originalSize
+        };
+      }));
     };
 
     const clearCanvas = () => {
@@ -256,39 +334,46 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
         const canvas = templateCanvasRef.current;
         if (!canvas) return;
         
-        // Get canvas dimensions
+        // Get canvas dimensions (using CSS dimensions for consistent sizing)
         const rect = canvas.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        const containerWidth = rect.width;
+        const containerHeight = rect.height;
         
-        // Calculate size based on canvas height for all templates
-        let templateSize = rect.height * 0.7;  // Default 70% of canvas height
+        // Calculate base size relative to the smaller dimension
+        const baseDimension = Math.min(containerWidth, containerHeight);
+        let templateSize = baseDimension * 0.4;  // Default 40% of smaller dimension
         
         // Adjust size for specific templates that might need different scaling
         switch (selectedTemplate) {
           case "cat":
-            templateSize = rect.height * 0.9;  // Cat remains at 90%
+            templateSize = baseDimension * 0.5;  // Cat at 50%
             break;
           case "heart":
-            templateSize = rect.height * 0.6;  // Slightly smaller for compact shapes
+            templateSize = baseDimension * 0.35;  // Heart slightly smaller
             break;
           case "star":
           case "arrow":
-            templateSize = rect.height * 0.5;  // Arrows typically look better smaller
+            templateSize = baseDimension * 0.3;  // Smaller for compact shapes
             break;
           case "cloud":
           case "flower":
           case "heartEyes":
-            templateSize = rect.height * 0.7;  // 70% for medium-sized templates
+            templateSize = baseDimension * 0.4;  // 40% for medium-sized templates
             break;
         }
         
-        // Add new template to the list
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+        
+        // Add new template to the list with original positions and size
         setTemplates(prev => [...prev, {
           type: selectedTemplate,
           x: centerX,
           y: centerY,
-          size: templateSize
+          size: templateSize,
+          originalX: centerX,
+          originalY: centerY,
+          originalSize: templateSize
         }]);
         
         // Reset template selection
@@ -416,10 +501,10 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
 
     return (
       <Card className="p-4 bg-white shadow-lg">
-        <div className="relative w-full aspect-[4/3]">
+        <div className="relative w-full h-[calc(100vh-16rem)] min-h-[300px] max-h-[600px]">
           <canvas
             ref={drawingCanvasRef}
-            className="absolute top-0 left-0 w-full h-full border border-gray-200 rounded-lg touch-none touch-action-none"
+            className="absolute top-0 left-0 w-full h-full border border-gray-200 rounded-lg touch-none"
             style={{
               cursor: tool === 'move' ? 'move' :
                 tool === 'brush' ? 
