@@ -9,7 +9,6 @@ Canvas is a modern full-stack drawing application built with TypeScript, React, 
 - Various drawing tools (brush, eraser, shapes)
 - Responsive UI components
 - Server-side persistence
-- Real-time collaboration (future)
 
 ## Technologies
 
