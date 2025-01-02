@@ -87,30 +87,41 @@ export const drawHeartEyes = (ctx: CanvasRenderingContext2D, x: number, y: numbe
 };
 
 export const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
-  const radius = size/4;
+  // Scale factor to fit our coordinate system
+  const scale = size / 24;  // SVG viewport is 24x24
   
-  // Main circle
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.save();
+  ctx.translate(x - size/2, y - size/2);  // Center the drawing
+  ctx.scale(scale, scale);
 
-  // Top circles
+  // Draw the cloud path
   ctx.beginPath();
-  ctx.arc(x - radius, y - radius/2, radius * 0.7, 0, Math.PI * 2);
+  ctx.moveTo(11.0947, 8.02658);
+  ctx.lineTo(11.0947, 8.02658);
+  
+  // First curve
+  ctx.moveTo(11.0947, 8.02658);
+  ctx.bezierCurveTo(11.5476, 5.73111, 13.5717, 4, 16, 4);
+  ctx.bezierCurveTo(18.7614, 4, 21, 6.23858, 21, 9);
+  ctx.bezierCurveTo(21, 11.0345, 19.7849, 12.7852, 18.0408, 13.5659);
+  
+  // Second curve
+  ctx.moveTo(11.0947, 8.02658);
+  ctx.bezierCurveTo(9.24194, 8.21766, 7.68947, 9.4193, 7, 11);
+  ctx.bezierCurveTo(4.6, 11.375, 3, 13.3144, 3, 15.4137);
+  ctx.bezierCurveTo(3, 17.9466, 5.14903, 20, 7.8, 20);
+  ctx.lineTo(15, 20);
+  ctx.bezierCurveTo(17.2091, 20, 19, 18.2719, 19, 16.1402);
+  ctx.bezierCurveTo(19, 15.1829, 18.6388, 14.2698, 18.0408, 13.5659);
+  
+  // Third curve
+  ctx.moveTo(11.0947, 8.02658);
+  ctx.bezierCurveTo(11.265, 8.00902, 11.4378, 8, 11.6127, 8);
+  ctx.bezierCurveTo(14.2747, 8, 16.4504, 9.99072, 16.6, 12.5);
+  ctx.bezierCurveTo(17.1583, 12.7354, 17.6501, 13.106, 18.0408, 13.5659);
+  
   ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(x + radius, y - radius/2, radius * 0.7, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Bottom circles
-  ctx.beginPath();
-  ctx.arc(x - radius, y + radius/2, radius * 0.7, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(x + radius, y + radius/2, radius * 0.7, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.restore();
 };
 
 export const drawArrow = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
@@ -230,7 +241,7 @@ export const templateConfigs: Record<TemplateType, TemplateConfig> = {
   cloud: {
     type: "cloud",
     category: "Nature",
-    lineWidth: 2,
+    lineWidth: 0.5,
     strokeStyle: "#666",
     drawFunction: drawCloud
   },

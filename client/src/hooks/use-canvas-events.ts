@@ -11,6 +11,7 @@ interface UseCanvasEventsProps {
   templates: Template[];
   setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
   setSelectedTemplateIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedTemplateIndex: number | null;
   isOverResizeHandle: (template: Template, pos: { x: number; y: number }) => boolean;
   drawPoint: (pos: { x: number; y: number }) => void;
   drawLine: (startPos: { x: number; y: number }, endPos: { x: number; y: number }) => void;
@@ -22,6 +23,7 @@ export const useCanvasEvents = ({
   templates,
   setTemplates,
   setSelectedTemplateIndex,
+  selectedTemplateIndex,
   isOverResizeHandle,
   drawPoint,
   drawLine,
@@ -96,7 +98,7 @@ export const useCanvasEvents = ({
       const sizeDelta = Math.max(dx, dy);
       
       setTemplates(prev => prev.map((template, index) => 
-        index === templates.findIndex((t, i) => i === templates.length - 1)
+        index === selectedTemplateIndex
           ? { ...template, size: Math.max(20, resizeStartSize + sizeDelta * 2) }
           : template
       ));
@@ -105,7 +107,7 @@ export const useCanvasEvents = ({
       const dy = currentPos.y - lastPos.y;
 
       setTemplates(prev => prev.map((template, index) => 
-        index === templates.findIndex((t, i) => i === templates.length - 1)
+        index === selectedTemplateIndex
           ? { ...template, x: template.x + dx, y: template.y + dy }
           : template
       ));

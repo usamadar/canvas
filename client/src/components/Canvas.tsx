@@ -51,6 +51,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       templates,
       setTemplates,
       setSelectedTemplateIndex,
+      selectedTemplateIndex,
       isOverResizeHandle,
       drawPoint,
       drawLine,

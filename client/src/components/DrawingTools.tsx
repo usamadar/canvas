@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "../components/ui/card";
 import { Slider } from "../components/ui/slider";
-import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move, Cloud, ArrowRight, Smile, Cat } from "lucide-react";
+import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move, ArrowRight, Smile, Cat, Cloud } from "lucide-react";
 import { TemplateType, templateConfigs } from "../lib/templates";
 
 interface DrawingToolsProps {
