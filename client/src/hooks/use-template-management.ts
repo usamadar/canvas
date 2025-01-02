@@ -4,7 +4,7 @@
  */
 
 import { RefObject, useEffect } from 'react';
-import { Template, DrawingTool } from '../types/canvas';
+import { Template, DrawingTool, ResizeHandle } from '../types/canvas';
 import { TemplateType, drawTemplate } from '../lib/templates';
 
 /** Size of the resize handles in pixels */
@@ -136,7 +136,8 @@ export const useTemplateManagement = ({
         y: centerY,
         size: templateSize,
         xposition: centerX,
-        yposition: centerY
+        yposition: centerY,
+        originalSize: templateSize
       }]);
       
       setTimeout(() => {
@@ -158,21 +159,29 @@ export const useTemplateManagement = ({
      * Checks if a point is over a template's resize handle
      * @param {Template} template - The template to check
      * @param {Object} pos - The position to check
-     * @returns {boolean} Whether the position is over a resize handle
+     * @returns {ResizeHandle | null} Whether the position is over a resize handle
      */
-    isOverResizeHandle: (template: Template, pos: { x: number; y: number }) => {
-      const halfSize = template.size / 2;
-      const handles = [
-        { x: template.x - halfSize - RESIZE_HANDLE_SIZE/2, y: template.y - halfSize - RESIZE_HANDLE_SIZE/2 },
-        { x: template.x + halfSize + RESIZE_HANDLE_SIZE/2, y: template.y - halfSize - RESIZE_HANDLE_SIZE/2 },
-        { x: template.x - halfSize - RESIZE_HANDLE_SIZE/2, y: template.y + halfSize + RESIZE_HANDLE_SIZE/2 },
-        { x: template.x + halfSize + RESIZE_HANDLE_SIZE/2, y: template.y + halfSize + RESIZE_HANDLE_SIZE/2 }
-      ];
+    isOverResizeHandle: (template: Template, pos: { x: number; y: number }): ResizeHandle | null => {
+      const handleSize = 10; // Size of resize handle hitbox
+      const dx = pos.x - template.x;
+      const dy = pos.y - template.y;
+      const radius = template.size / 2;
 
-      return handles.some(handle => 
-        Math.abs(pos.x - handle.x) <= RESIZE_HANDLE_SIZE &&
-        Math.abs(pos.y - handle.y) <= RESIZE_HANDLE_SIZE
-      );
+      // Check each corner
+      if (Math.abs(dx - radius) <= handleSize && Math.abs(dy - radius) <= handleSize) {
+        return 'bottom-right';
+      }
+      if (Math.abs(dx + radius) <= handleSize && Math.abs(dy + radius) <= handleSize) {
+        return 'top-left';
+      }
+      if (Math.abs(dx + radius) <= handleSize && Math.abs(dy - radius) <= handleSize) {
+        return 'bottom-left';
+      }
+      if (Math.abs(dx - radius) <= handleSize && Math.abs(dy + radius) <= handleSize) {
+        return 'top-right';
+      }
+
+      return null;
     },
     redrawTemplates
   };

@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Template, DrawingTool } from '@/types/canvas';
+import { Template, DrawingTool, ResizeHandle } from '@/types/canvas';
 
 interface UseCanvasEventsProps {
   tool: DrawingTool;
@@ -12,7 +12,7 @@ interface UseCanvasEventsProps {
   setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
   setSelectedTemplateIndex: React.Dispatch<React.SetStateAction<number | null>>;
   selectedTemplateIndex: number | null;
-  isOverResizeHandle: (template: Template, pos: { x: number; y: number }) => boolean;
+  isOverResizeHandle: (template: Template, pos: { x: number; y: number }) => ResizeHandle | null;
   drawPoint: (pos: { x: number; y: number }) => void;
   drawLine: (startPos: { x: number; y: number }, endPos: { x: number; y: number }) => void;
   getEventPosition: (e: React.MouseEvent | React.TouchEvent) => { x: number; y: number };
@@ -34,6 +34,7 @@ export const useCanvasEvents = ({
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartSize, setResizeStartSize] = useState<number>(0);
   const [resizeStartPos, setResizeStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [activeResizeHandle, setActiveResizeHandle] = useState<ResizeHandle | null>(null);
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
@@ -55,8 +56,10 @@ export const useCanvasEvents = ({
 
     if (clickedTemplateIndex !== -1) {
       const selectedTemplate = templates[clickedTemplateIndex];
-      if (isOverResizeHandle(selectedTemplate, pos)) {
+      const resizeHandle = isOverResizeHandle(selectedTemplate, pos);
+      if (resizeHandle) {
         setIsResizing(true);
+        setActiveResizeHandle(resizeHandle);
         setResizeStartSize(selectedTemplate.size);
         setResizeStartPos(pos);
       }
@@ -92,17 +95,34 @@ export const useCanvasEvents = ({
   const handleMove = (currentPos: { x: number; y: number }) => {
     if (!lastPos) return;
 
-    if (isResizing && resizeStartPos) {
+    if (isResizing && resizeStartPos && activeResizeHandle) {
       const dx = currentPos.x - resizeStartPos.x;
       const dy = currentPos.y - resizeStartPos.y;
-      const sizeDelta = Math.max(dx, dy);
+      
+      let sizeDelta = 0;
+      switch (activeResizeHandle) {
+        case 'bottom-right':
+          sizeDelta = Math.max(dx, dy);
+          break;
+        case 'top-left':
+          sizeDelta = -Math.min(dx, dy);
+          break;
+        case 'bottom-left':
+          sizeDelta = Math.max(-dx, dy);
+          break;
+        case 'top-right':
+          sizeDelta = Math.max(dx, -dy);
+          break;
+      }
+
       const newSize = Math.max(20, resizeStartSize + sizeDelta * 2);
       
       setTemplates(prev => prev.map((template, index) => 
         index === selectedTemplateIndex
           ? { 
               ...template, 
-              size: newSize
+              size: newSize,
+              originalSize: newSize
             }
           : template
       ));
@@ -134,6 +154,7 @@ export const useCanvasEvents = ({
     setLastPos(null);
     setIsResizing(false);
     setResizeStartPos(null);
+    setActiveResizeHandle(null);
   };
 
   return {

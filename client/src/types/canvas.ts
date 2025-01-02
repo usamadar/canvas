@@ -18,10 +18,12 @@ export interface Template {
   y: number;
   /** Size of the template */
   size: number;
-  /** Preserved X position for resize calculations */
+  /** Original X position for resize calculations */
   xposition?: number;
-  /** Preserved Y position for resize calculations */
+  /** Original Y position for resize calculations */
   yposition?: number;
+  /** Original size for resize calculations */
+  originalSize?: number;
 }
 
 /**
@@ -52,4 +54,6 @@ export interface CanvasProps {
   brushSize: number;
   /** Currently selected template, if any */
   selectedTemplate: TemplateType | null;
-} 
+}
+
+export type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; 
