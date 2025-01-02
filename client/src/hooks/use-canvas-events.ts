@@ -96,10 +96,14 @@ export const useCanvasEvents = ({
       const dx = currentPos.x - resizeStartPos.x;
       const dy = currentPos.y - resizeStartPos.y;
       const sizeDelta = Math.max(dx, dy);
+      const newSize = Math.max(20, resizeStartSize + sizeDelta * 2);
       
       setTemplates(prev => prev.map((template, index) => 
         index === selectedTemplateIndex
-          ? { ...template, size: Math.max(20, resizeStartSize + sizeDelta * 2) }
+          ? { 
+              ...template, 
+              size: newSize
+            }
           : template
       ));
     } else {
@@ -108,7 +112,13 @@ export const useCanvasEvents = ({
 
       setTemplates(prev => prev.map((template, index) => 
         index === selectedTemplateIndex
-          ? { ...template, x: template.x + dx, y: template.y + dy }
+          ? { 
+              ...template, 
+              x: template.x + dx, 
+              y: template.y + dy,
+              xposition: template.x + dx,
+              yposition: template.y + dy
+            }
           : template
       ));
     }

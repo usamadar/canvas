@@ -18,12 +18,10 @@ export interface Template {
   y: number;
   /** Size of the template */
   size: number;
-  /** Original X position for resize calculations */
-  originalX?: number;
-  /** Original Y position for resize calculations */
-  originalY?: number;
-  /** Original size for resize calculations */
-  originalSize?: number;
+  /** Preserved X position for resize calculations */
+  xposition?: number;
+  /** Preserved Y position for resize calculations */
+  yposition?: number;
 }
 
 /**

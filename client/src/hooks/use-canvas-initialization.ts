@@ -101,25 +101,24 @@ export const useCanvasInitialization = ({
 
     // Update template positions for new dimensions
     setTemplates(prev => prev.map(template => {
-      if (!template.originalSize || !template.originalX || !template.originalY) {
+      if (!template.xposition || !template.yposition) {
         return template;
       }
 
       const baseDimension = Math.min(containerWidth, containerHeight);
-      const xRatio = template.originalX / template.originalSize;
-      const yRatio = template.originalY / template.originalSize;
-      const newSize = baseDimension * (template.originalSize / Math.min(containerWidth, containerHeight));
-      const newX = containerWidth * (template.originalX / containerWidth);
-      const newY = containerHeight * (template.originalY / containerHeight);
+      const xRatio = template.xposition / template.size;
+      const yRatio = template.yposition / template.size;
+      const newSize = baseDimension * (template.size / Math.min(containerWidth, containerHeight));
+      const newX = containerWidth * (template.xposition / containerWidth);
+      const newY = containerHeight * (template.yposition / containerHeight);
 
       return {
         ...template,
         x: newX,
         y: newY,
         size: newSize,
-        originalX: template.originalX,
-        originalY: template.originalY,
-        originalSize: template.originalSize
+        xposition: template.xposition,
+        yposition: template.yposition
       };
     }));
   };

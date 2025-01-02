@@ -135,9 +135,8 @@ export const useTemplateManagement = ({
         x: centerX,
         y: centerY,
         size: templateSize,
-        originalX: centerX,
-        originalY: centerY,
-        originalSize: templateSize
+        xposition: centerX,
+        yposition: centerY
       }]);
       
       setTimeout(() => {
