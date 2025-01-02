@@ -13,12 +13,28 @@ import { DrawingTool } from "@/types/canvas";
 export const getCanvasCursor = (tool: DrawingTool, brushSize: number): string => {
   if (tool === 'move') return 'move';
 
+  // Create SVG cursor with proper size and shape
+  const cursorSize = brushSize;
+  const viewBoxSize = 100;
   const shape = tool === 'brush' ? 'circle' : 'rect';
-  const svgCursor = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${brushSize}' height='${brushSize}' viewBox='0 0 100 100'%3E%3C${shape} ${
-    shape === 'circle' ? 'cx="50" cy="50" r="50"' : 'width="100" height="100"'
-  } fill='black'/%3E%3C/svg%3E") ${brushSize/2} ${brushSize/2}, auto`;
+  
+  // For circle, we use cx, cy, r attributes
+  // For rectangle, we use x, y, width, height attributes
+  const shapeAttrs = shape === 'circle' 
+    ? `cx="${viewBoxSize/2}" cy="${viewBoxSize/2}" r="${viewBoxSize/2 - 4}"` // Adjust radius for stroke
+    : `x="4" y="4" width="${viewBoxSize - 8}" height="${viewBoxSize - 8}"`; // Adjust position and size for stroke
 
-  return svgCursor;
+  // Create SVG with semi-transparent fill for better visibility
+  const svg = `
+    <svg xmlns='http://www.w3.org/2000/svg' width='${cursorSize}' height='${cursorSize}' viewBox='0 0 ${viewBoxSize} ${viewBoxSize}'>
+      <${shape} ${shapeAttrs} fill='rgba(0,0,0,0.5)' stroke='white' stroke-width='4'/>
+      <${shape} ${shapeAttrs} fill='none' stroke='black' stroke-width='2'/>
+    </svg>
+  `.trim();
+
+  // Convert SVG to base64 URL-encoded string
+  const encoded = encodeURIComponent(svg);
+  return `url("data:image/svg+xml;utf8,${encoded}") ${cursorSize/2} ${cursorSize/2}, auto`;
 };
 
 /**

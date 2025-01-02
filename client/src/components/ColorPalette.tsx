@@ -1,9 +1,11 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { DrawingTool } from "@/types/canvas";
 
 interface ColorPaletteProps {
   selectedColor: string;
   onColorChange: (color: string) => void;
+  onToolChange: (tool: DrawingTool) => void;
 }
 
 const COLORS = [
@@ -21,7 +23,12 @@ const COLORS = [
   "#FFFFFF", // White
 ];
 
-export default function ColorPalette({ selectedColor, onColorChange }: ColorPaletteProps) {
+export default function ColorPalette({ selectedColor, onColorChange, onToolChange }: ColorPaletteProps) {
+  const handleColorSelect = (color: string) => {
+    onColorChange(color);
+    onToolChange("brush"); // Automatically switch to brush tool when selecting a color
+  };
+
   return (
     <Card className="p-3 sm:p-4">
       <h2 className="text-base sm:text-lg font-semibold mb-2.5 text-pink-600">Colors</h2>
@@ -29,11 +36,14 @@ export default function ColorPalette({ selectedColor, onColorChange }: ColorPale
         {COLORS.map((color) => (
           <button
             key={color}
-            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-transform hover:scale-110 ${
-              selectedColor === color ? "border-pink-400" : "border-transparent"
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full transition-transform hover:scale-110 relative ${
+              selectedColor === color ? "ring-[6px] ring-white ring-offset-4" : ""
             }`}
-            style={{ backgroundColor: color }}
-            onClick={() => onColorChange(color)}
+            style={{ 
+              backgroundColor: color,
+              boxShadow: selectedColor === color ? '0 0 0 3px rgba(0,0,0,0.25)' : 'none'
+            }}
+            onClick={() => handleColorSelect(color)}
           />
         ))}
       </div>

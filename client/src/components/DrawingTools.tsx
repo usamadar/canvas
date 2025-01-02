@@ -34,18 +34,8 @@ export default function DrawingTools({
   onSelectTemplate,
   onClearCanvas,
 }: DrawingToolsProps) {
-  const [selectedCategory, setSelectedCategory] = React.useState("Basic");
-
-  // Get unique categories from template configs
-  const categories = React.useMemo(() => {
-    const uniqueCategories = new Set(Object.values(templateConfigs).map(config => config.category));
-    return Array.from(uniqueCategories);
-  }, []);
-
-  // Get templates for the selected category
-  const categoryTemplates = React.useMemo(() => {
-    return Object.values(templateConfigs).filter(config => config.category === selectedCategory);
-  }, [selectedCategory]);
+  // Get all available templates
+  const templates = Object.keys(templateConfigs) as TemplateType[];
 
   return (
     <div className="flex flex-col gap-2">
@@ -119,37 +109,20 @@ export default function DrawingTools({
       <Card className="p-2 sm:p-3">
         <h2 className="text-base sm:text-lg font-semibold mb-2 text-pink-600">Templates</h2>
         
-        {/* Category Tabs */}
-        <div className="flex overflow-x-auto scrollbar-hide mb-2 pb-1.5 -mx-1 px-1">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`shrink-0 px-1.5 py-0.5 rounded-lg text-[10px] sm:text-xs font-medium transition-colors mr-1 ${
-                selectedCategory === category
-                  ? "bg-pink-100 text-pink-600"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
         {/* Templates Grid */}
         <div className="grid grid-cols-4 gap-1.5">
-          {categoryTemplates.map((template) => (
+          {templates.map((template) => (
             <button
-              key={template.type}
+              key={template}
               className={`aspect-square flex items-center justify-center p-1.5 sm:p-2 rounded-lg border-2 transition-colors ${
-                selectedTemplate === template.type
+                selectedTemplate === template
                   ? "bg-pink-100 border-pink-400"
                   : "border-transparent hover:bg-gray-100"
               }`}
-              onClick={() => onSelectTemplate(selectedTemplate === template.type ? null : template.type)}
-              aria-label={`${template.type} template`}
+              onClick={() => onSelectTemplate(selectedTemplate === template ? null : template)}
+              aria-label={`${template} template`}
             >
-              {templateIcons[template.type]}
+              {templateIcons[template]}
             </button>
           ))}
         </div>

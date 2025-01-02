@@ -6,6 +6,7 @@ import { TemplateType } from "../lib/templates";
 import { Button } from "../components/ui/button";
 import { Save } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+import { DrawingTool } from "@/types/canvas";
 
 interface CanvasRef {
   toDataURL: () => string;
@@ -13,14 +14,13 @@ interface CanvasRef {
 
 export default function Home() {
   const [selectedColor, setSelectedColor] = useState("#FF69B4");
-  const [selectedTool, setSelectedTool] = useState<"brush" | "eraser" | "move">("brush");
+  const [selectedTool, setSelectedTool] = useState<DrawingTool>("brush");
   const [brushSize, setBrushSize] = useState(5);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType | null>(null);
   const canvasRef = useRef<CanvasRef | null>(null);
   const { toast } = useToast();
 
   const handleClearCanvas = () => {
-    // Trigger a clear on the canvas component
     const clearEvent = new CustomEvent('clearCanvas');
     window.dispatchEvent(clearEvent);
   };
@@ -40,7 +40,6 @@ export default function Home() {
         throw new Error("Canvas not found");
       }
 
-      // Get the data URL from our custom method
       const dataUrl = canvasRef.current.toDataURL();
       const link = document.createElement("a");
       link.download = "my-drawing.png";
@@ -77,6 +76,7 @@ export default function Home() {
             <ColorPalette
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}
+              onToolChange={setSelectedTool}
             />
             <DrawingTools
               selectedTool={selectedTool}
