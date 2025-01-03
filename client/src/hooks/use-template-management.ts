@@ -4,11 +4,17 @@
  */
 
 import { RefObject, useEffect } from 'react';
-import { Template, DrawingTool, ResizeHandle } from '../types/canvas';
+import { Template, DrawingTool, ResizeHandle, UndoAction } from '../types/canvas';
 import { TemplateType, drawTemplate } from '../lib/templates';
 
 /** Size of the resize handles in pixels */
 const RESIZE_HANDLE_SIZE = 10;
+
+/**
+ * Constants for delete button styling and positioning
+ */
+const DELETE_BUTTON_OFFSET = 25;
+const DELETE_BUTTON_SIZE = 20;
 
 /**
  * Props for the useTemplateManagement hook
@@ -27,6 +33,7 @@ interface UseTemplateManagementProps {
   selectedTemplate: TemplateType | null;
   /** Function to update the templates array */
   setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
+  addToHistory: (action: UndoAction) => void;
 }
 
 /**
@@ -41,6 +48,7 @@ export const useTemplateManagement = ({
   tool,
   selectedTemplate,
   setTemplates,
+  addToHistory
 }: UseTemplateManagementProps) => {
   /**
    * Draws resize handles around a selected template
@@ -82,6 +90,9 @@ export const useTemplateManagement = ({
       ctx.fill();
       ctx.stroke();
     });
+
+    // Add delete button
+    drawDeleteButton(ctx, template);
   };
 
   /**
@@ -130,7 +141,8 @@ export const useTemplateManagement = ({
       const centerX = containerWidth / 2;
       const centerY = containerHeight / 2;
       
-      setTemplates(prev => [...prev, {
+      const newTemplate = {
+        id: `template-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: selectedTemplate,
         x: centerX,
         y: centerY,
@@ -138,14 +150,24 @@ export const useTemplateManagement = ({
         xposition: centerX,
         yposition: centerY,
         originalSize: templateSize
-      }]);
+      };
+
+      setTemplates(prev => {
+        const newIndex = prev.length;
+        addToHistory({
+          type: 'ADD_TEMPLATE',
+          template: newTemplate,
+          index: newIndex
+        });
+        return [...prev, newTemplate];
+      });
       
       setTimeout(() => {
         const event = new CustomEvent('templateDrawn');
         window.dispatchEvent(event);
       }, 100);
     }
-  }, [selectedTemplate]);
+  }, [selectedTemplate, templateCanvasRef, addToHistory]);
 
   /**
    * Effect to redraw templates when necessary
@@ -153,6 +175,54 @@ export const useTemplateManagement = ({
   useEffect(() => {
     redrawTemplates();
   }, [templates, tool, selectedTemplateIndex]);
+
+  /**
+   * Checks if a point is over the delete button
+   * @param {Template} template - The template to check
+   * @param {Object} pos - The position to check
+   * @returns {boolean} Whether the position is over the delete button
+   */
+  const isOverDeleteButton = (template: Template, pos: { x: number; y: number }): boolean => {
+    const buttonX = template.x + template.size/2 + DELETE_BUTTON_OFFSET;
+    const buttonY = template.y - template.size/2 - DELETE_BUTTON_OFFSET;
+    return (
+      pos.x >= buttonX && 
+      pos.x <= buttonX + DELETE_BUTTON_SIZE &&
+      pos.y >= buttonY && 
+      pos.y <= buttonY + DELETE_BUTTON_SIZE
+    );
+  };
+
+  /**
+   * Draws the delete button for a template
+   * @param {CanvasRenderingContext2D} ctx - The canvas context
+   * @param {Template} template - The template to draw the button for
+   */
+  const drawDeleteButton = (ctx: CanvasRenderingContext2D, template: Template) => {
+    const buttonX = template.x + template.size/2 + DELETE_BUTTON_OFFSET;
+    const buttonY = template.y - template.size/2 - DELETE_BUTTON_OFFSET;
+    
+    // Draw button background
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(255, 59, 48, 0.9)';
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.arc(buttonX + DELETE_BUTTON_SIZE/2, buttonY + DELETE_BUTTON_SIZE/2, DELETE_BUTTON_SIZE/2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    // Draw X symbol
+    const padding = 6;
+    ctx.beginPath();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    // Draw X
+    ctx.moveTo(buttonX + padding, buttonY + padding);
+    ctx.lineTo(buttonX + DELETE_BUTTON_SIZE - padding, buttonY + DELETE_BUTTON_SIZE - padding);
+    ctx.moveTo(buttonX + DELETE_BUTTON_SIZE - padding, buttonY + padding);
+    ctx.lineTo(buttonX + padding, buttonY + DELETE_BUTTON_SIZE - padding);
+    ctx.stroke();
+  };
 
   return {
     /**
@@ -183,6 +253,7 @@ export const useTemplateManagement = ({
 
       return null;
     },
-    redrawTemplates
+    redrawTemplates,
+    isOverDeleteButton
   };
 }; 

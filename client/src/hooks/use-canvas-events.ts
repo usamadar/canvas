@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Template, DrawingTool, ResizeHandle } from '@/types/canvas';
+import { Template, DrawingTool, ResizeHandle, UndoAction } from '@/types/canvas';
 
 /**
  * Props for the useCanvasEvents hook
@@ -29,6 +29,11 @@ interface UseCanvasEventsProps {
   drawLine: (startPos: { x: number; y: number }, endPos: { x: number; y: number }) => void;
   /** Function to get normalized position from mouse/touch event */
   getEventPosition: (e: React.MouseEvent | React.TouchEvent) => { x: number; y: number };
+  /** Function to check if a point is over a delete button */
+  isOverDeleteButton: (template: Template, pos: { x: number; y: number }) => boolean;
+  addToHistory: (action: UndoAction) => void;
+  captureDrawingState: () => void;
+  isUndoing: boolean;
 }
 
 /**
@@ -46,6 +51,10 @@ export const useCanvasEvents = ({
   drawPoint,
   drawLine,
   getEventPosition,
+  isOverDeleteButton,
+  addToHistory,
+  captureDrawingState,
+  isUndoing
 }: UseCanvasEventsProps) => {
   /** Whether user is currently drawing or moving a template */
   const [isDrawing, setIsDrawing] = useState(false);
@@ -59,6 +68,48 @@ export const useCanvasEvents = ({
   const [resizeStartPos, setResizeStartPos] = useState<{ x: number; y: number } | null>(null);
   /** Currently active resize handle */
   const [activeResizeHandle, setActiveResizeHandle] = useState<ResizeHandle | null>(null);
+  /** Whether user clicked on delete button */
+  const [isOverDelete, setIsOverDelete] = useState(false);
+  /** Store initial template state for batch operations */
+  const [moveStartTemplate, setMoveStartTemplate] = useState<Template | null>(null);
+  const [resizeStartTemplate, setResizeStartTemplate] = useState<Template | null>(null);
+
+  /**
+   * Safely handles template deletion
+   * @param {number} index - Index of template to delete
+   */
+  const handleTemplateDelete = (index: number) => {
+    if (index < 0 || index >= templates.length) return;
+    
+    const deletedTemplate = templates[index];
+    addToHistory({
+      type: 'DELETE_TEMPLATE',
+      template: deletedTemplate,
+      index
+    });
+
+    setSelectedTemplateIndex(null);
+    setTemplates(prev => prev.filter((_, i) => i !== index));
+  };
+
+  /**
+   * Safely handles template operations with edge case checks
+   * @param {number} index - Template index to operate on
+   * @returns {Template | null} The template if valid, null otherwise
+   */
+  const getValidTemplate = (index: number): Template | null => {
+    if (index === null || index < 0 || index >= templates.length) {
+      return null;
+    }
+    return templates[index];
+  };
+
+  /**
+   * Checks if any operation is in progress
+   */
+  const isOperationInProgress = (): boolean => {
+    return isUndoing || isDrawing || isResizing;
+  };
 
   /**
    * Handles the start of a drawing or move operation
@@ -80,27 +131,41 @@ export const useCanvasEvents = ({
    * @param {Object} pos - The current position
    */
   const handleMoveStart = (pos: { x: number; y: number }) => {
+    if (isOperationInProgress()) return;
+
     const clickedTemplateIndex = templates.findIndex((template) => {
       const dx = template.x - pos.x;
       const dy = template.y - pos.y;
       return Math.sqrt(dx * dx + dy * dy) <= template.size;
     });
 
-    if (clickedTemplateIndex !== -1) {
-      const selectedTemplate = templates[clickedTemplateIndex];
-      const resizeHandle = isOverResizeHandle(selectedTemplate, pos);
-      if (resizeHandle) {
-        setIsResizing(true);
-        setActiveResizeHandle(resizeHandle);
-        setResizeStartSize(selectedTemplate.size);
-        setResizeStartPos(pos);
-      }
-      setSelectedTemplateIndex(clickedTemplateIndex);
-      setIsDrawing(true);
-      setLastPos(pos);
-    } else {
+    const clickedTemplate = getValidTemplate(clickedTemplateIndex);
+    if (!clickedTemplate) {
       setSelectedTemplateIndex(null);
+      return;
     }
+
+    // Check if clicking delete button
+    if (isOverDeleteButton(clickedTemplate, pos)) {
+      setIsOverDelete(true);
+      handleTemplateDelete(clickedTemplateIndex);
+      return;
+    }
+
+    const resizeHandle = isOverResizeHandle(clickedTemplate, pos);
+    if (resizeHandle) {
+      setIsResizing(true);
+      setActiveResizeHandle(resizeHandle);
+      setResizeStartSize(clickedTemplate.size);
+      setResizeStartPos(pos);
+      setResizeStartTemplate(clickedTemplate);
+    } else {
+      setMoveStartTemplate(clickedTemplate);
+    }
+    
+    setSelectedTemplateIndex(clickedTemplateIndex);
+    setIsDrawing(true);
+    setLastPos(pos);
   };
 
   /**
@@ -108,14 +173,23 @@ export const useCanvasEvents = ({
    * @param {Object} pos - The current position
    */
   const handleDrawStart = (pos: { x: number; y: number }) => {
+    captureDrawingState(); // Capture state before drawing
     drawPoint(pos);
     setIsDrawing(true);
     setLastPos(pos);
   };
 
   /**
+   * Handles drawing lines between points
+   * @param {Object} currentPos - The current position
+   */
+  const handleDraw = (currentPos: { x: number; y: number }) => {
+    if (!lastPos) return;
+    drawLine(lastPos, currentPos);
+  };
+
+  /**
    * Handles ongoing drawing or move operations
-   * @param {React.MouseEvent | React.TouchEvent} e - The triggering event
    */
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
@@ -133,92 +207,113 @@ export const useCanvasEvents = ({
   };
 
   /**
-   * Handles template movement and resizing
-   * @param {Object} currentPos - The current position
+   * Handles template movement and resizing with safety checks
    */
   const handleMove = (currentPos: { x: number; y: number }) => {
-    if (!lastPos) return;
+    if (!lastPos || selectedTemplateIndex === null) return;
 
-    if (isResizing && resizeStartPos && activeResizeHandle) {
-      const dx = currentPos.x - resizeStartPos.x;
-      const dy = currentPos.y - resizeStartPos.y;
-      
-      /*
-      Calculate size change based on resize handle position.
-      Calculate size change based on drag direction.
-      We use max/min to maintain aspect ratio while resizing.
-      For corners, we want consistent sizing in both directions.
-      */
-      let sizeDelta = 0;
-      switch (activeResizeHandle) {
-        case 'bottom-right':
-          // For bottom-right, take larger of x/y movement for uniform scaling
-          sizeDelta = Math.max(dx, dy);
-          break;
-        case 'top-left':
-          // For top-left, take smaller of negative x/y movement
-          // Negative because moving up/left should increase size
-          sizeDelta = -Math.min(dx, dy);
-          break;
-        case 'bottom-left':
-          // For bottom-left, compare negative x with positive y
-          // Moving left increases width, moving down increases height
-          sizeDelta = Math.max(-dx, dy);
-          break;
-        case 'top-right':
-          // For top-right, compare positive x with negative y
-          // Moving right increases width, moving up increases height
-          sizeDelta = Math.max(dx, -dy);
-          break;
-      }
+    const selectedTemplate = getValidTemplate(selectedTemplateIndex);
+    if (!selectedTemplate) {
+      stopDrawing();
+      return;
+    }
 
-      const newSize = Math.max(20, resizeStartSize + sizeDelta * 2);
-      
-      setTemplates(prev => prev.map((template, index) => 
-        index === selectedTemplateIndex
-          ? { 
-              ...template, 
-              size: newSize,
-              originalSize: newSize
-            }
-          : template
-      ));
-    } else {
-      const dx = currentPos.x - lastPos.x;
-      const dy = currentPos.y - lastPos.y;
-
-      setTemplates(prev => prev.map((template, index) => 
-        index === selectedTemplateIndex
-          ? { 
-              ...template, 
-              x: template.x + dx, 
-              y: template.y + dy,
-              xposition: template.x + dx,
-              yposition: template.y + dy
-            }
-          : template
-      ));
+    if (isResizing && resizeStartPos && activeResizeHandle && resizeStartTemplate) {
+      handleResize(currentPos, selectedTemplate);
+    } else if (moveStartTemplate) {
+      handleMoveTemplate(currentPos, selectedTemplate);
     }
   };
 
   /**
-   * Handles drawing lines between points
-   * @param {Object} currentPos - The current position
+   * Handles template resizing
    */
-  const handleDraw = (currentPos: { x: number; y: number }) => {
-    if (!lastPos) return;
-    drawLine(lastPos, currentPos);
+  const handleResize = (currentPos: { x: number; y: number }, template: Template) => {
+    if (!resizeStartPos || !activeResizeHandle) return;
+
+    const dx = currentPos.x - resizeStartPos.x;
+    const dy = currentPos.y - resizeStartPos.y;
+    
+    let sizeDelta = 0;
+    switch (activeResizeHandle) {
+      case 'bottom-right':
+        sizeDelta = Math.max(dx, dy);
+        break;
+      case 'top-left':
+        sizeDelta = -Math.min(dx, dy);
+        break;
+      case 'bottom-left':
+        sizeDelta = Math.max(-dx, dy);
+        break;
+      case 'top-right':
+        sizeDelta = Math.max(dx, -dy);
+        break;
+    }
+
+    const newSize = Math.max(20, resizeStartSize + sizeDelta * 2);
+    
+    setTemplates(prev => prev.map(t => 
+      t.id === template.id
+        ? { ...t, size: newSize, originalSize: newSize }
+        : t
+    ));
   };
 
   /**
-   * Handles the end of drawing/moving operations
+   * Handles template movement
+   */
+  const handleMoveTemplate = (currentPos: { x: number; y: number }, template: Template) => {
+    if (!lastPos) return;
+
+    const dx = currentPos.x - lastPos.x;
+    const dy = currentPos.y - lastPos.y;
+
+    setTemplates(prev => prev.map(t => 
+      t.id === template.id
+        ? { 
+            ...t, 
+            x: t.x + dx,
+            y: t.y + dy,
+            xposition: t.x + dx,
+            yposition: t.y + dy
+          }
+        : t
+    ));
+  };
+
+  /**
+   * Handles the end of drawing/moving operations with cleanup
    */
   const stopDrawing = () => {
+    if (selectedTemplateIndex !== null) {
+      const currentTemplate = getValidTemplate(selectedTemplateIndex);
+      
+      if (currentTemplate) {
+        if (isResizing && resizeStartTemplate) {
+          addToHistory({
+            type: 'RESIZE_TEMPLATE',
+            template: currentTemplate,
+            previousTemplate: resizeStartTemplate
+          });
+        } else if (moveStartTemplate) {
+          addToHistory({
+            type: 'MOVE_TEMPLATE',
+            template: currentTemplate,
+            previousTemplate: moveStartTemplate
+          });
+        }
+      }
+    }
+
+    // Reset all state
     setIsDrawing(false);
     setLastPos(null);
     setIsResizing(false);
     setResizeStartPos(null);
     setActiveResizeHandle(null);
+    setMoveStartTemplate(null);
+    setResizeStartTemplate(null);
+    setIsOverDelete(false);
   };
 
   return {

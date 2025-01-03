@@ -10,6 +10,8 @@ import { TemplateType } from "../lib/templates";
  * @interface Template
  */
 export interface Template {
+  /** Unique identifier for the template */
+  id: string;
   /** The type of template to draw */
   type: TemplateType;
   /** X-coordinate position of the template */
@@ -57,3 +59,10 @@ export interface CanvasProps {
 }
 
 export type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; 
+
+export type UndoAction = 
+  | { type: 'ADD_TEMPLATE'; template: Template; index: number }
+  | { type: 'DELETE_TEMPLATE'; template: Template; index: number }
+  | { type: 'MOVE_TEMPLATE'; template: Template; previousTemplate: Template }
+  | { type: 'RESIZE_TEMPLATE'; template: Template; previousTemplate: Template }
+  | { type: 'DRAW'; imageData: ImageData }; 
