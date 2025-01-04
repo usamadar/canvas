@@ -4,19 +4,23 @@ Canvas is a modern full-stack drawing application built with TypeScript, React, 
 
 ## Features
 
-- Interactive drawing canvas
-- Customizable color palette
-- Various drawing tools (brush, eraser, shapes)
-- Responsive UI components
-- Server-side persistence
+- Interactive drawing canvas with layers support
+- Customizable color palette with advanced color controls
+- Various drawing tools (brush, eraser, shapes, templates)
+- Responsive UI components with mobile support
+- Advanced undo/redo history
+- Template management system
+- Toast notifications system
+- Server-side persistence and state management
 
 ## Technologies
 
-- **Frontend**: React, Vite, Tailwind CSS
+- **Frontend**: React, Vite, Tailwind CSS, shadcn/ui
 - **Backend**: Node.js, Express
 - **Database**: Drizzle ORM
 - **Styling**: Tailwind CSS, CSS Modules
 - **Build Tools**: Vite, TypeScript
+- **UI Components**: Comprehensive shadcn/ui component library
 
 ## Installation
 
@@ -52,6 +56,14 @@ Canvas is a modern full-stack drawing application built with TypeScript, React, 
 canvas/
 ├── client/                # Frontend application
 │   ├── src/               # React components and pages
+│   │   ├── components/    # UI components
+│   │   │   ├── Canvas/    # Canvas components
+│   │   │   ├── ui/        # shadcn/ui components
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── lib/           # Shared utilities
+│   │   ├── pages/         # Application pages
+│   │   ├── types/         # TypeScript types
+│   │   └── utils/         # Utility functions
 │   ├── index.html         # Main HTML entry point
 │   └── ...                # Other frontend files
 ├── server/                # Backend server
@@ -60,8 +72,11 @@ canvas/
 ├── db/                    # Database configuration
 │   ├── schema.ts          # Database schema
 │   └── index.ts           # Database connection
+├── public/                # Static assets
+├── .env                   # Environment variables
 ├── package.json           # Project dependencies
 ├── tsconfig.json          # TypeScript configuration
+├── vite.config.ts         # Vite configuration
 └── ...                    # Other configuration files
 ```
 
