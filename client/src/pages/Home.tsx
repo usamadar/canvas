@@ -9,7 +9,7 @@ import ColorPalette from "../components/ColorPalette";
 import DrawingTools from "../components/DrawingTools";
 import { TemplateType } from "../lib/templates";
 import { Button } from "../components/ui/button";
-import { Save } from "lucide-react";
+import { Save, Palette, ChevronUp, ChevronDown } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { DrawingTool } from "@/types/canvas";
 
@@ -30,6 +30,15 @@ export default function Home() {
    * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
    */
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+
+  /**
+   * Handles color selection and automatically closes the mobile tools panel
+   * @param color The selected color value
+   */
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    setMobileToolsOpen(false);
+  };
 
   const handleClearCanvas = () => {
     const clearEvent = new CustomEvent('clearCanvas');
@@ -90,15 +99,20 @@ export default function Home() {
         </header>
 
         {/* MOBILE Toggle button (only shown on smaller screens) */}
-        <div className="md:hidden flex justify-end">
-          <button
-            type="button"
-            className="mb-2 px-4 py-2 text-sm font-semibold text-pink-600 border border-pink-300 rounded-lg 
-                       hover:bg-pink-100 transition-colors"
+        <div className="md:hidden fixed top-4 right-4 z-50">
+          <Button
+            variant="ghost"
+            className="text-pink-600 hover:bg-pink-100 transition-colors flex gap-1 px-3 bg-white/80 backdrop-blur-sm shadow-sm"
             onClick={toggleMobileTools}
+            aria-label={mobileToolsOpen ? 'Hide Tools' : 'Show Tools'}
           >
-            {mobileToolsOpen ? 'Hide Tools' : 'Show Tools'}
-          </button>
+            <Palette className="h-5 w-5" />
+            {mobileToolsOpen ? (
+              <ChevronUp className="h-5 w-5" />
+            ) : (
+              <ChevronDown className="h-5 w-5" />
+            )}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-2">
@@ -109,7 +123,7 @@ export default function Home() {
           <div className={`flex flex-col gap-2 ${mobileToolsOpen ? 'block' : 'hidden'} md:block`}>
             <ColorPalette
               selectedColor={selectedColor}
-              onColorChange={setSelectedColor}
+              onColorChange={handleColorChange}
               onToolChange={setSelectedTool}
             />
             <DrawingTools

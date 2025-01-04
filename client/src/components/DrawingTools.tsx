@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "../components/ui/card";
 import { Slider } from "../components/ui/slider";
-import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move, ArrowRight, Smile, Cat, Cloud } from "lucide-react";
+import { Pencil, Eraser, Star, Heart, Flower2, Trash2, Move, Apple, Smile, Cat, Cloud, Cake } from "lucide-react";
 import { TemplateType, templateConfigs } from "../lib/templates";
 
 interface DrawingToolsProps {
@@ -21,8 +21,9 @@ const templateIcons: Record<TemplateType, React.ReactNode> = {
   flower: <Flower2 className="w-5 h-5 sm:w-6 sm:h-6" />,
   heartEyes: <Smile className="w-5 h-5 sm:w-6 sm:h-6" />,
   cloud: <Cloud className="w-5 h-5 sm:w-6 sm:h-6" />,
-  arrow: <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />,
-  cat: <Cat className="w-5 h-5 sm:w-6 sm:h-6" />
+  apple: <Apple className="w-5 h-5 sm:w-6 sm:h-6" />,
+  cat: <Cat className="w-5 h-5 sm:w-6 sm:h-6" />,
+  cake: <Cake className="w-5 h-5 sm:w-6 sm:h-6" />
 };
 
 export default function DrawingTools({
