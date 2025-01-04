@@ -1,5 +1,7 @@
 # Canvas - Full-Stack Drawing Application
 
+![Canvas Screenshot](./canvas-screenshot.png)
+
 Canvas is a modern full-stack drawing application built with TypeScript, React, and Node.js. It provides a rich set of drawing tools and UI components for creating and managing digital artwork. Originally created through Replit Agent, ehanced using DeepSeek using Celine and Claude Sonnet using Cursor Agent. 
 
 ## Features
