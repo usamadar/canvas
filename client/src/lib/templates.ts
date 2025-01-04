@@ -472,28 +472,28 @@ export const templateConfigs: Record<TemplateType, TemplateConfig> = {
   cloud: {
     type: "cloud",
     category: "Nature",
-    lineWidth: 0.5,
+    lineWidth: 0.2,
     strokeStyle: "#666",
     drawFunction: drawCloud
   },
   apple: {
     type: "apple",
     category: "Food",
-    lineWidth: 0.5,
+    lineWidth: 2,
     strokeStyle: "#666",
     drawFunction: drawApple
   },
   cat: {
     type: "cat",
     category: "Animals",
-    lineWidth: 0.5,
+    lineWidth: 0.2,
     strokeStyle: "#666",
     drawFunction: drawCat
   },
   cake: {
     type: "cake",
     category: "Food",
-    lineWidth: 0.5,
+    lineWidth: 0.2,
     strokeStyle: "#666",
     drawFunction: drawCake
   }
