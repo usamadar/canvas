@@ -44,6 +44,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
     );
 
     // Template management hooks (moved after undo history)
+    const [isOverResize, setIsOverResize] = useState(false);
     const { isOverResizeHandle, redrawTemplates, isOverDeleteButton } = useTemplateManagement({
       templateCanvasRef,
       templates,
@@ -72,6 +73,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       setSelectedTemplateIndex,
       selectedTemplateIndex,
       isOverResizeHandle,
+      setIsOverResize,
       drawPoint,
       drawLine,
       getEventPosition,
@@ -137,6 +139,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
             templateCanvasRef={templateCanvasRef}
             tool={tool}
             brushSize={brushSize}
+            isOverResizeHandle={isOverResize}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}

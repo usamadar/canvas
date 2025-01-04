@@ -23,6 +23,8 @@ interface UseCanvasEventsProps {
   selectedTemplateIndex: number | null;
   /** Function to check if a point is over a resize handle */
   isOverResizeHandle: (template: Template, pos: { x: number; y: number }) => ResizeHandle | null;
+  /** Function to set whether cursor is over resize handle */
+  setIsOverResize: React.Dispatch<React.SetStateAction<boolean>>;
   /** Function to draw a single point */
   drawPoint: (pos: { x: number; y: number }) => void;
   /** Function to draw a line between two points */
@@ -48,6 +50,7 @@ export const useCanvasEvents = ({
   setSelectedTemplateIndex,
   selectedTemplateIndex,
   isOverResizeHandle,
+  setIsOverResize,
   drawPoint,
   drawLine,
   getEventPosition,
@@ -193,9 +196,36 @@ export const useCanvasEvents = ({
    */
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
-    if (!isDrawing || !lastPos) return;
-
     const currentPos = getEventPosition(e);
+
+    // Update resize cursor state
+    if (tool === "move" && selectedTemplateIndex !== null) {
+      const template = templates[selectedTemplateIndex];
+      const resizeHandle = isOverResizeHandle(template, currentPos);
+      if (resizeHandle) {
+      setIsOverResize(true);
+      // Set cursor style based on handle position
+      const canvas = e.currentTarget as HTMLCanvasElement;
+      switch (resizeHandle) {
+        case 'bottom-right':
+        case 'top-left':
+          canvas.style.cursor = 'nwse-resize';
+          break;
+        case 'bottom-left':
+        case 'top-right':
+          canvas.style.cursor = 'nesw-resize';
+          break;
+        default:
+          canvas.style.cursor = 'default';
+      }
+      } else {
+      setIsOverResize(false);
+      const canvas = e.currentTarget as HTMLCanvasElement;
+      canvas.style.cursor = 'default';
+      }
+    }
+
+    if (!isDrawing || !lastPos) return;
 
     if (tool === "move") {
       handleMove(currentPos);
@@ -322,4 +352,4 @@ export const useCanvasEvents = ({
     stopDrawing,
     isDrawing
   };
-}; 
+};

@@ -10,7 +10,8 @@ import { DrawingTool } from "@/types/canvas";
  * @param {number} brushSize - The size of the brush/eraser
  * @returns {string} The CSS cursor style
  */
-export const getCanvasCursor = (tool: DrawingTool, brushSize: number): string => {
+export const getCanvasCursor = (tool: DrawingTool, brushSize: number, isOverResizeHandle = false): string => {
+  if (isOverResizeHandle) return 'nwse-resize';
   if (tool === 'move') return 'move';
 
   // Create SVG cursor with proper size and shape
@@ -60,4 +61,4 @@ export const createCanvasDataUrl = (
   tempCtx.drawImage(templateCanvas, 0, 0);
 
   return tempCanvas.toDataURL('image/png');
-}; 
+};

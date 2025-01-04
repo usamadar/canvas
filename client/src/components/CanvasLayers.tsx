@@ -12,6 +12,7 @@ interface CanvasLayersProps {
   templateCanvasRef: RefObject<HTMLCanvasElement>;
   tool: DrawingTool;
   brushSize: number;
+  isOverResizeHandle: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent) => void;
   onMouseUp: () => void;
@@ -27,6 +28,7 @@ export const CanvasLayers: React.FC<CanvasLayersProps> = ({
   templateCanvasRef,
   tool,
   brushSize,
+  isOverResizeHandle,
   onMouseDown,
   onMouseMove,
   onMouseUp,
@@ -42,7 +44,7 @@ export const CanvasLayers: React.FC<CanvasLayersProps> = ({
         ref={drawingCanvasRef}
         className="absolute top-0 left-0 w-full h-full border border-gray-200 rounded-lg touch-none"
         style={{
-          cursor: getCanvasCursor(tool, brushSize)
+          cursor: getCanvasCursor(tool, brushSize, isOverResizeHandle)
         }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -59,4 +61,4 @@ export const CanvasLayers: React.FC<CanvasLayersProps> = ({
       />
     </div>
   );
-}; 
+};
