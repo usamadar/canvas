@@ -126,17 +126,7 @@ export const useTemplateManagement = ({
       const containerHeight = rect.height;
       
       const baseDimension = Math.min(containerWidth, containerHeight);
-      let templateSize = baseDimension * 0.4;
-      
-      switch (selectedTemplate) {
-        case "cat": templateSize = baseDimension * 1; break;
-        case "heart": templateSize = baseDimension * 1.5; break;
-        case "star":
-        case "arrow": templateSize = baseDimension * 0.5; break;
-        case "cloud":templateSize = baseDimension * 1.3; break;
-        case "flower":templateSize = baseDimension * 0.6; break;
-        case "heartEyes": templateSize = baseDimension * 0.9; break;
-      }
+      let templateSize = baseDimension * 0.5;
       
       const centerX = containerWidth / 2;
       const centerY = containerHeight / 2;
