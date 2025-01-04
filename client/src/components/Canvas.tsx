@@ -5,7 +5,7 @@
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Card } from "./ui/card";
-import { CanvasProps, CanvasRef, Template } from "@/types/canvas";
+import { CanvasProps, CanvasRef, Template, DrawingTool } from "@/types/canvas";
 import { useCanvasInitialization } from "@/hooks/use-canvas-initialization";
 import { useTemplateManagement } from "@/hooks/use-template-management";
 import { useDrawing } from "@/hooks/use-drawing";
@@ -15,8 +15,16 @@ import { createCanvasDataUrl } from "@/utils/canvas-utils";
 import { useUndoHistory } from "@/hooks/use-undo-history";
 import { Undo } from "lucide-react";
 
+interface CanvasProps {
+    color: string;
+    tool: DrawingTool;
+    brushSize: number;
+    selectedTemplate: TemplateType | null;
+    setTool?: React.Dispatch<React.SetStateAction<DrawingTool>>;
+}
+
 const Canvas = forwardRef<CanvasRef, CanvasProps>(
-  ({ color, tool, brushSize, selectedTemplate }, ref) => {
+  ({ color, tool, brushSize, selectedTemplate, setTool }, ref) => {
     const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
     const templateCanvasRef = useRef<HTMLCanvasElement>(null);
     const [templates, setTemplates] = useState<Template[]>([]);
@@ -52,7 +60,9 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(
       tool,
       selectedTemplate,
       setTemplates,
-      addToHistory
+      addToHistory,
+      setSelectedTemplateIndex,
+      setTool
     });
 
     /**

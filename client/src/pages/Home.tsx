@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Main Home page layout which renders the Canvas, Tools, and Color Palette.
+ * On mobile screens, the tools and palette are hidden by default to maximize canvas space.
+ */
+
 import React, { useState, useRef, useEffect } from "react";
 import Canvas from "../components/Canvas";
 import ColorPalette from "../components/ColorPalette";
@@ -19,6 +24,12 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType | null>(null);
   const canvasRef = useRef<CanvasRef | null>(null);
   const { toast } = useToast();
+
+  /**
+   * Tracks whether the tools panel is open on mobile screens.
+   * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+   */
+  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
 
   const handleClearCanvas = () => {
     const clearEvent = new CustomEvent('clearCanvas');
@@ -60,6 +71,13 @@ export default function Home() {
     }
   };
 
+  /**
+   * Toggles the mobile tools panel open/closed.
+   */
+  const toggleMobileTools = () => {
+    setMobileToolsOpen((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-pink-50 px-2 py-2 sm:p-4">
       <div className="max-w-6xl mx-auto space-y-2">
@@ -71,8 +89,24 @@ export default function Home() {
           <p className="text-pink-400 text-sm mt-0.5">Let's create something beautiful!</p>
         </header>
 
+        {/* MOBILE Toggle button (only shown on smaller screens) */}
+        <div className="md:hidden flex justify-end">
+          <button
+            type="button"
+            className="mb-2 px-4 py-2 text-sm font-semibold text-pink-600 border border-pink-300 rounded-lg 
+                       hover:bg-pink-100 transition-colors"
+            onClick={toggleMobileTools}
+          >
+            {mobileToolsOpen ? 'Hide Tools' : 'Show Tools'}
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-2">
-          <div className="flex flex-col gap-2">
+          {/* Left Side Tools Panel 
+              Hidden by default on mobile unless mobileToolsOpen === true 
+              Always visible on md+ screens using md:block 
+          */}
+          <div className={`flex flex-col gap-2 ${mobileToolsOpen ? 'block' : 'hidden'} md:block`}>
             <ColorPalette
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}
@@ -89,6 +123,7 @@ export default function Home() {
             />
           </div>
 
+          {/* Right Side: Canvas */}
           <div className="flex flex-col gap-2">
             <Canvas
               ref={canvasRef}
@@ -96,6 +131,7 @@ export default function Home() {
               tool={selectedTool}
               brushSize={brushSize}
               selectedTemplate={selectedTemplate}
+              setTool={setSelectedTool}
             />
             
             <div className="flex justify-end">

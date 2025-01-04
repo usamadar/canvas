@@ -34,6 +34,10 @@ interface UseTemplateManagementProps {
   /** Function to update the templates array */
   setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
   addToHistory: (action: UndoAction) => void;
+  /** Function to update the selected template index */
+  setSelectedTemplateIndex?: React.Dispatch<React.SetStateAction<number | null>>;
+  /** Function to change the current drawing tool */
+  setTool?: React.Dispatch<React.SetStateAction<DrawingTool>>;
 }
 
 /**
@@ -48,7 +52,9 @@ export const useTemplateManagement = ({
   tool,
   selectedTemplate,
   setTemplates,
-  addToHistory
+  addToHistory,
+  setSelectedTemplateIndex,
+  setTool
 }: UseTemplateManagementProps) => {
   /**
    * Draws resize handles around a selected template
@@ -149,6 +155,15 @@ export const useTemplateManagement = ({
           template: newTemplate,
           index: newIndex
         });
+        
+        if (setSelectedTemplateIndex) {
+          setSelectedTemplateIndex(newIndex);
+        }
+
+        if (setTool) {
+          setTool('move');
+        }
+
         return [...prev, newTemplate];
       });
       
