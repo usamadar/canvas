@@ -39,12 +39,17 @@ export const CanvasLayers: React.FC<CanvasLayersProps> = ({
   onTouchCancel,
 }) => {
   return (
-    <div className="relative w-full h-[calc(100vh-16rem)] min-h-[300px] max-h-[600px]">
+    <div className="relative w-full h-[calc(100vh-16rem)] min-h-[300px] max-h-[600px] select-none">
       <canvas
         ref={drawingCanvasRef}
-        className="absolute top-0 left-0 w-full h-full border border-gray-200 rounded-lg touch-none"
+        className="absolute top-0 left-0 w-full h-full border border-gray-200 rounded-lg touch-none select-none"
         style={{
-          cursor: getCanvasCursor(tool, brushSize, isOverResizeHandle)
+          cursor: getCanvasCursor(tool, brushSize, isOverResizeHandle),
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+          userSelect: 'none',
+          WebkitTouchCallout: 'none'
         }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -57,7 +62,7 @@ export const CanvasLayers: React.FC<CanvasLayersProps> = ({
       />
       <canvas
         ref={templateCanvasRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        className="absolute top-0 left-0 w-full h-full pointer-events-none select-none"
       />
     </div>
   );
